@@ -1,0 +1,357 @@
+:root,                       /* Global variables declarations    */
+:root.col {                                                             /* Colored interface palette */
+  --fntSize: 1em;
+  --col-bg: #496d8f;        /*  Page background                 */
+  --col-fb: #eeeeee;        /*  Fields background               */
+  --col-ft: #000000;        /*  Fields text                     */
+  --col-lt: #99ccff;        /*  Placeholder text (light color)  */
+  --col-h1: #afcfeb;        /*  H1 text                         */
+  --col-s1: #000000;        /*  H1 text shadow                  */
+  --col-h2: #ffa600;        /*  H2 text                         */
+  --col-sb: #912b2b;        /*  Small left buttons              */
+  --col-sh: #b64747;        /*  Small left buttons hover        */
+  --col-st: #ffffff;        /*  Small left buttons text color   */
+  --col-lb: #ff8050;        /*  Labels (mostly Command fields)  */
+  
+  --col-a1: #2d5479;        /*  Darkest:   buttons              */
+  --col-a2: #496d8f;        /*             buttons flyover      */
+  
+  --col-a3: #6d72aa;        /*             background           */
+  --col-a4: #8588ac;        /*  Brightest: fieldsets background */
+
+  --col-b3: #a470b4;        /*             background           */
+  --col-b4: #ae88b9;        /*  Brightest: fieldsets background */
+
+  --col-c3: #dc69a5;        /*             background           */
+  --col-c4: #df89b5;        /*  Brightest: fieldsets background */
+}
+:root.bnw {                                                             /* Black on white interface palette */
+  --fntSize: 1em;
+  --col-bg: #ffffff;        /*  Page background                 */
+  --col-fb: #ffffff;        /*  Fields background               */
+  --col-ft: #000000;        /*  Fields text                     */
+  --col-lt: #aaaaaa;        /*  Placeholder text (light color)  */
+  --col-h1: #000000;        /*  H1 text                         */
+  --col-s1: #ffffff;        /*  H1 text shadow                  */
+  --col-h2: #000000;        /*  H2 text                         */
+  --col-sb: #888888;        /*  Small left buttons              */
+  --col-sh: #555555;        /*  Small left buttons hover        */
+  --col-st: #ffffff;        /*  Small left buttons text color   */
+  --col-lb: #000000;        /*  Labels (mostly Command fields)  */
+  
+  --col-a1: #666666;        /*  Darkest:   buttons              */
+  --col-a2: #444444;        /*             buttons flyover      */
+  
+  --col-a3: #cccccc;        /*             background           */
+  --col-a4: #dddddd;        /*  Brightest: fieldsets background */
+
+  --col-b3: #dddddd;        /*             background           */
+  --col-b4: #eeeeee;        /*  Brightest: fieldsets background */
+
+  --col-c3: #eeeeee;        /*             background           */
+  --col-c4: #ffffff;        /*  Brightest: fieldsets background */
+}
+:root.inv {                                                             /* Inverted video interface palette */
+  --fntSize: 1em;
+  --col-bg: #000000;        /*  Page background                 */
+  --col-fb: #333333;        /*  Fields background               */
+  --col-ft: #ffffff;        /*  Fields text                     */
+  --col-lt: #666666;        /*  Placeholder text (light color)  */
+  --col-h1: #ffa600;        /*  H1 text                         */
+  --col-s1: #000000;        /*  H1 text shadow                  */
+  --col-h2: #ffa600;        /*  H2 text                         */
+  --col-sb: #912b2b;        /*  Small left buttons              */
+  --col-sh: #b64747;        /*  Small left buttons hover        */
+  --col-st: #ffffff;        /*  Small left buttons text color   */
+  --col-lb: #ffa600;        /*  Labels (mostly Command fields)  */
+  
+  --col-a1: #2d5479;        /*  Darkest:   buttons              */
+  --col-a2: #496d8f;        /*             buttons flyover      */
+  
+  --col-a3: #4b4e74;        /*             background           */
+  --col-a4: #6d72aa;        /*  Brightest: fieldsets background */
+
+  --col-b3: #845194;        /*             background           */
+  --col-b4: #a470b4;        /*  Brightest: fieldsets background */
+
+  --col-c3: #964870;        /*             background           */
+  --col-c4: #c25c91;        /*  Brightest: fieldsets background */
+}
+
+
+<!---------------------->
+
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--col-bg);
+}
+
+input,                                           /* accent color for user-interface controls such as inputs (radio buttons, checkboxes...) or progress bars. */
+progress {
+  accent-color: var(--col-a3);
+}
+
+h1 {
+  color: var(--col-h1);
+  text-shadow: -3px 0 4px var(--col-s1);
+  font-size: 1.5em;
+  font-family: Verdana, Tahoma, sans-serif;
+  font-weight: lighter;
+}
+h2 {
+  color: var(--col-h2);
+  text-shadow: -2px 0 2px var(--col-s1);
+  font-size: medium;
+  font-style: normal;
+  font-weight: normal;
+  padding: 0 0 0 0;
+  margin: 0 0;
+
+}
+
+.container {                                     /* Container for each main categories form */
+  /* border:2px solid var(--col-a1); */
+  border:1px solid var(--col-a1);
+  box-shadow: 5px 5px 10px var(--col-s1);
+  border-radius: 8px;
+  background-color: var(--col-a3);
+  padding: 0px 12px 1px 10px;
+  margin: 0px 10px 10px 10px;
+}
+
+.closebutton {
+  font-size: small;
+  cursor: pointer;
+  background-color: transparent;
+  border: 0px;
+  outline: none;
+  color: var(--col-ft);
+  position: relative;
+  top: 0;
+  right: 0;
+  float:right;
+  padding: 0;
+  margin: 0;
+
+}
+
+
+.theme-container {                                     /* Container for color theme and font size form */
+  /* border:2px solid var(--col-a1); */
+  border:1px solid var(--col-a1);
+  box-shadow: 5px 5px 10px var(--col-s1);
+  border-radius: 8px;
+  background-color: var(--col-a3);
+  margin: 0px 10px 10px 10px;
+  width: 230px;
+  height: 32px;
+  float:right;
+}
+
+form {                                          /* Invisible container - set border to fine-tune */
+  margin: 6px 6px 4px 6px;
+  /* border: 1px solid var(--col-a1);*/
+}
+
+input[type="text"],                             /* Large text areas for command strings (careful: margin have to be inverted here) */
+select,
+textarea {
+  background-color: var(--col-fb);
+  color: var(--col-ft);
+  font-size: var(--fntSize);
+  width: 100%;
+  height: 60px;
+  padding: 6px 6px;
+  margin: 6px 0px 4px 0px;
+  display: inline-block;
+  border: 1px solid var(--col-h2);
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+input[type="transparent"] {                     /* Small text areas for Commands and Hertz or Repeat values on the left side */
+  background-color: var(--col-fb);
+  color: var(--col-ft);
+  border: 1px solid var(--col-sh);
+  width: 50px;
+  height: 1em;
+  padding: 12px 10px;
+  margin: 4px 0;
+  display: inline-block;
+  border-radius: 0px;
+  box-sizing: border-box;
+}
+
+label {                                        /* Input field labels (mostly top Commands panel) */
+  color: var(--col-lb);
+  font-size: 0.9em;
+  text-shadow: 1px 1px 1px var(--col-s1);
+  padding: 0 12px 18px 0;
+  font-weight: normal;
+  display: inline-block;
+}
+
+input[type="submit"] {                                      /* Large main buttons */
+  font-size: 0.8em;
+  background-color: var(--col-a1);
+  box-shadow: 1px 1px 3px var(--col-s1);
+  color: var(--col-st);
+  margin: 0 8px;
+  padding: 6px 20px;
+  margin: 0px 0px 2px 6px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+}
+input[type="submit"]:hover {
+  background-color: var(--col-a2);
+}
+
+input.small {                                      /* Small buttons */
+  background-color: var(--col-sb);
+  font-size: 0.8em;
+  width: 60px;
+  min-width: 0;
+  height: 20px;
+  color: var(--col-st);
+  margin: auto;
+  padding: 0px 0px 0px 0px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  float: none;
+}
+input.small:hover {
+  background-color: var(--col-sh);
+}
+
+input.minib {
+  font-size: 0.6em;
+  padding: 0px 0px 0px 0px;
+  width: 20px;
+  height: 20px;
+  margin: 3px 3px;
+  vertical-align: top;
+  float: none;
+}
+
+.col-25 {                                        /* Left column width, and mostly text for input field labels on the left */
+  color: var(--col-sb);
+  font-family: Verdana, Tahoma, sans-serif;
+  font-size: small;
+  font-style: italic;
+  float: left;
+  width: 14%;
+  padding: 0;
+  margin: 6 0 0 0;
+}
+
+.col-75 {                                        /* Right column width, and mostly text for input field labels on the left */
+  color: var(--col-a1);
+  font-family: Verdana, Tahoma, sans-serif;
+  font-weight: lighter;
+  font-size: small;
+  float: left;
+  width: 85%;
+  margin-top: 6px;
+}
+
+
+.row:after {                                     /* Clear floats after the columns */
+  content: "";
+  display: table;
+  clear: both;
+}
+
+::placeholder {                                  /* Style for hints that describe expected value of input fields */
+  color: var(--col-lt);
+  font-style: italic;
+}
+
+.fieldset1 {                                    /* Frames containing IR/RF radio buttons & controls */
+  background-color: var(--col-b4);
+  border: 1px solid var(--col-a1);
+  -moz-border-radius: 8px;
+  -webkit-border-radius: 8px;
+  border-radius: 8px;
+  width: 235px;
+  padding: 2px 10px 0px;
+  margin: 0px 12px 2px 6px;
+  font-size: 0.8em;
+}
+
+.fieldset2 {                                    /* Frames containing Hz frequencies or Repeat values */
+  background-color: var(--col-c4);
+  border: 1px solid var(--col-a1);
+  -moz-border-radius: 8px;
+  -webkit-border-radius: 8px;
+  border-radius: 8px;
+  padding: 5px 5px;
+  margin: 0;
+  font-size: 1em;
+  width: 128px;
+}
+.command {                                       /* Forms background color per section */
+  background-color: var(--col-a3);
+}
+.pronto {
+  background-color: var(--col-b3);
+}
+.color-a4 {
+  background-color: var(--col-a4);
+}
+.color-b4 {
+  background-color: var(--col-b4);
+}
+.decimal {
+  background-color: var(--col-c3);
+}
+.color-c4 {
+  background-color: var(--col-c4);
+}
+.broadlinkHex {
+  background-color: var(--col-b3);
+}
+.broadlinkB64 {
+  background-color: var(--col-c3);
+}
+
+label[style="mini"] {                           /* Label styles for RF / IR Broadlink radio buttons */
+  font-size: 1em;
+  margin-bottom: 1px;
+  margin-top: 1px;
+  padding: 2px 3px;
+  vertical-align: text-bottom;
+  font-weight: lighter;
+  color: var(--col-h2);
+  text-shadow: 0px 0px 5px var(--col-s1);
+  
+}
+@media screen and (max-width: 600px) {           /* Responsive layout - when screen is less than 600px wide, make the two columns stack on top of each other */
+  .col-25,
+  .col-75,
+  input[type="submit"] {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+
+@keyframes messageAnim {                        /* message() function animation - see https://www.w3schools.com/cssref/css3_pr_animation-keyframes.asp */
+  0% {
+    bottom: 100px;
+    left: 200px;
+    right: 200px;
+    opacity: 0;
+  }
+  100% {
+    bottom: 0px;
+    left: 50px;
+    right: 50px;
+    opacity: 1;
+  }
+}
