@@ -1,6 +1,15 @@
-/*
-« non verbum e verbo sed sensum de sensu »
+// « non verbum e verbo sed sensum de sensu »
+
+/* Todo:
+			- handle <Return> keypresses
+			- copy button in Commands panel does nothing yet -> copy as Lirc txt file ?
+			- return false from all ui_ functions (in case form would be used in an iframe, i.e. in Google Sites)
+			- search hardcoded "var freq = 38029"
+			- freqSetLirc to cleanup, 
+			- *Setting Decimal frequency only changes freq byte, not values !
+			- All '// return false;' at the end of ui_ functions to be deleted / corrected (was initially meant for Google Sites embedding)
  */
+
 const tableStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 const table = tableStr.split("");
 var output = '';                           // Buffer for output message in log window
@@ -45,28 +54,28 @@ function ui_clear(fieldId) {               // Clears field with id string fieldI
 		clrField('cShortField');
 		clrField('cCommandField');
 		setFocus('cShortField');
-		return false
+	} else {
+		clrField(fieldId);
+		setFocus(fieldId);
 	}
-	clrField(fieldId);
-	setFocus(fieldId);
-	return false;
+		// return false;
 }
 function ui_copy(fieldId) {                // Copies string from field with id string fieldId to clipboard
 	cleanOnClick();
 	navigator.clipboard.writeText(document.getElementById(fieldId));
-	return false;
+	// return false;
 }
 function ui_copyPrefixed(fieldId) {        // Copies string from field with id string fieldId to clipboard
 	cleanOnClick();
 	let jeedom = 'hex2send:' + getfield(fieldId);
 	navigator.clipboard.writeText(jeedom);
 	info(jeedom)
-	return false;
+	// return false;
 }
 function ui_paste(fieldId) {               // Pastes clipboard to field with id string fieldId
 	cleanOnClick();
 	navigator.clipboard.readText().then(clipText => document.getElementById(fieldId).innerText = clipText);
-	return false;
+	// return false;
 }
 function formatShort(str, space, plus) {   // Formats a string, adding space every %space, and + every %plus position i.e. 'a55a 9a65 + a55a 40bf'
 	// let command = command.replace(/.{4}/g, '$& ');      // might exploit regEx, but boring with imbricated shifts
@@ -120,7 +129,7 @@ function ui_colorsToggle(theme) {       // Changes interface colors
 	// const setTheme = theme => document.documentElement.className = 'bnw';
 	cleanOnClick();
 	document.documentElement.className = theme;
-	return false;
+	// return false;
 }
 function ui_fontSize(opt) {             // Changes text size in code fields
 	cleanOnClick();
@@ -135,7 +144,7 @@ function ui_fontSize(opt) {             // Changes text size in code fields
 	} else {
 		message('🙂 + 👓 = 😎 / 🙂 + 👓👓 = 🤓')
 	}
-	return false;
+	// return false;
 }
 
 // Message popup functions
@@ -233,7 +242,7 @@ function ui_clearAll() {
 	clrField('testField');
 	setFocus('rawField');
 }
-function ui_check() {                            // 'Check' button in Raw Analysis panel : pulls figures out of figures
+function ui_check() {                                       // 'Check' button in Raw Analysis panel : pulls figures out of figures
 	cleanOnClick();
 	let i, str = '', raw = getField('rawField');
 	let hex, dec;
@@ -307,7 +316,7 @@ function ui_check() {                            // 'Check' button in Raw Analys
 		output += '\nLongest repeat identified: ' + repeatFind(raw) + '\n';
 		write(output);
 }
-function stringType(str) {                           //  _Tells if str contains binary, decimal, or hex data - returns object
+function stringType(str) {                                           //  _Tells if str contains binary, decimal, or hex data - returns object
 	
 	if (!str.replace(/ /g, '')) {return 'empty string'};
 
@@ -347,14 +356,14 @@ function stringType(str) {                           //  _Tells if str contains 
 
 
 }
-function chunk(str, size) {                          //  _Cuts a string in slices of %size length, returns an array of strings
+function chunk(str, size) {                                          //  _Cuts a string in slices of %size length, returns an array of strings
     return str.match(new RegExp('.{1,' + size + '}', 'g'));
 }
-function insertChars(str, char, pos) {               // _Inserts char at pos in str string
+function insertChars(str, char, pos) {                               // _Inserts char at pos in str string
 	if (str.length < pos) {return ''};
 	return str.slice(0, pos) + char + str.slice(pos);
 }
-function ui_repeats() {                          // Identifies longest duplicated sustrings and removes last occurrence of the dup 
+function ui_repeats() {                                              // Identifies longest duplicated sustrings and removes last occurrence of the dup 
 
 	cleanOnClick();
 	let raw = getField('rawField');
@@ -393,7 +402,7 @@ function ui_repeats() {                          // Identifies longest duplicate
 	write(output);
 
 }
-function repeatFind(str) {                           // In: string => Out: Last longest repeated substring
+function repeatFind(str) {                                           // In: string => Out: Last longest repeated substring
 
 	// Inspired from https://stackoverflow.com/questions/65380016/the-longest-repeating-substrings-javascript
 	
@@ -416,7 +425,7 @@ function repeatFind(str) {                           // In: string => Out: Last 
 	}
 	return longestSubStr;
 }	
-function commonSubstr(str1, str2) {                  //  _Returns the longest common identical substring from the beginning of str1 & str2
+function commonSubstr(str1, str2) {                                  //  _Returns the longest common identical substring from the beginning of str1 & str2
 
 	let shortest = Math.min(str1.length, str2.length);
 	for (let i = 0; i < shortest; i++) {
@@ -434,7 +443,7 @@ function ui_readRaw() {
 	readRaw();
 	setFocus('rawField');
 	write(output); output = '';        // Because we won't call refreshAll(), as we don't want Raw Analysis to modify any other fields
-	return false;
+	// return false;
 }
 function readRaw() {                                        // * Main Raw analysis function
 
@@ -927,11 +936,63 @@ function checkPtrail(str, seqStart) {                                // * unused
 
 // Acme functions --------------------------------------------------------------------------------------------------------->	
 
+function buildRandom() {
+	let command, short;
+	
+	let random = getRandomInt(6);
+	switch (random) {
+		case 0:                                        // generates a 2-bytes hex short, i.e. 'a51a'
+			short = getRandomHex(2);                   //
+			command = getCommandFromShort(short);      // and pulls command from it, i.e. 'a55a 58a7'
+			break
+		case 5:                                        // generates a 4-bytes hex short, i.e. '2a5a + ef4f'
+			short = getRandomHex(4);                   //
+			command = getCommandFromShort(short);      // and pulls command from it, i.e. '54ab 5aa5 + f708 f20d'
+			break
+		default:                                       // generates a 1-4 bytes hex command with no short associated
+			command = getRandomHex(random);
+	}
+	output += `Random: ${random} Short: ${short} Command: ${command}\n`
+
+	let bin = hexTobin(command);
+	let v0 = 300 + getRandomInt(500);
+	let v1 = Math.floor(v0 * (2 + Math.random()));
+	let one = v0.toString() + ' ' + v1.toString();
+	let zero = v0.toString() + ' ' + v0.toString();
+	let h1 = v0 * (5 + getRandomInt(5)) + Math.floor(v0 * (2 + Math.random()));
+	let h2 = Math.floor(h1 * (.5 + Math.random() * 2));
+	let header = `${h1}, ${h2}`
+	let ptrail = 200 + getRandomInt(600);
+	let gap = v0 * 80 + getRandomInt(10000);
+
+	output += `Header: ${header} One: ${one} Zero: ${zero} Ptrail: ${ptrail} Gap: ${gap} Bin command: ${bin}\n`
+	output += 'Modulo:' + 0 % 32 + '\n';
+	let raw = buildRaw(header,one,zero,ptrail.toString(),gap.toString(),bin);
+	setField('rawField', raw);		                           // Publish Raw without headers
+	/*
+	if (freq) {
+		setField('freqFieldRaw', freq);                        // Temporarily fills Raw frequency field
+		convertRaw(getField('rawField'));
+	}
+	command = getCommandFromShort(short) 
+*/
+	write(output); output = '';
+}
+function getRandomInt(max) {
+	return Math.floor(Math.random() * max);
+}
+function getRandomHex(count) {
+	let hex = '';
+	for (i = 0; i < count; i++) {
+		hex += getRandomInt(256).toString(16).padStart(2, "0");
+	}
+	return hex;
+}
 function ui_acme(category) {            // Fills "Category" data with test values
 	cleanOnClick();
 	switch (category) {
 		case 'Commands':
-			acmeCommands(); break;
+			// acmeCommands(); break;
 		case 'Pronto':
 			acmePronto(); break;
 		case 'Decimal':
@@ -945,7 +1006,7 @@ function ui_acme(category) {            // Fills "Category" data with test value
 		case 'Analysis':
 			acmeAnalysis(); break;
 	}
-	return false;
+	// return false;
 }
 function acmeCommands() {               // Fills Commands data with test values
 	
@@ -970,7 +1031,8 @@ function acmeDecimal() {                // Fills Decimal data with test value
 	setFocus('decimalField');
 }
 function acmeRaw() {                    // Fills Raw data with test value
-	setField('rawField', '0, 115, 0, 12, 888, 888, 888, 888, 1776, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 1776, 1776, 888, 888, 888, 888, 888, 888, 90943');
+	// setField('rawField', '0, 115, 0, 12, 888, 888, 888, 888, 1776, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 1776, 1776, 888, 888, 888, 888, 888, 888, 90943');
+	buildRandom();
 	freqReadRaw();
 	setFocus('rawField');
 }
@@ -1069,7 +1131,7 @@ function ui_freqRead(field) {                   // Updates given Frequency field
 			setFocus('freqFieldRaw');
 			break;
 	}
-	return false;
+	// return false;
 }
 function ui_freqSet(field) {                    // Updates Pronto Frequency field
 	cleanOnClick();
@@ -1087,12 +1149,11 @@ function ui_freqSet(field) {                    // Updates Pronto Frequency fiel
 			setFocus('freqFieldRaw');
 			break;
 	}
-	return false;
+	// return false;
 }
 function freqReadPronto() {                     // Updates Pronto Frequency field
 	let pronto = getField('prontoField');
 	setField('freqFieldPronto', freqFromPronto(pronto, 0));
-	return false;
 }
 function freqSetPronto() {                      // Changes Pronto Frequency
 	let newFreq = getField('freqFieldPronto');
@@ -1101,12 +1162,10 @@ function freqSetPronto() {                      // Changes Pronto Frequency
 	if (newDec && checkFreqInput(newFreq, true)) {
 		setField('prontoField', newDec);
 	}
-	return false;
 }
 function freqReadDecimal() {                    // Updates Decimal Frequency field
 	let dec = getField('decimalField');
 	setField('freqFieldDecimal', freqFromDecimal(dec, 0, false));
-	return false;
 }
 function freqSetDecimal() {                     // Changes Decimal Frequency
 	let dec = getField('decimalField');
@@ -1116,12 +1175,10 @@ function freqSetDecimal() {                     // Changes Decimal Frequency
 	if (newDec && checkFreqInput(newFreq, true)) {
 		setField('decimalField', newDec);
 	}
-	return false;
 }
 function freqReadRaw() {                        // Updates Raw Frequency field
 	let raw = getField('rawField');
 	setField('freqFieldRaw', freqFromDecimal(raw, 0, true));
-	return false;
 }
 function freqSetRaw() {                         // Changes Raw Frequency
 	//
@@ -1138,7 +1195,7 @@ function freqSetRaw() {                         // Changes Raw Frequency
 function ui_freqHexCheck() {                    // Check IR or RF value in Broadlink Hex button
 	cleanOnClick();
 	freqHexCheck();
-	return false;
+	// return false;
 }
 function freqHexCheck() {                       // Returns IR or RF value from Broadlink hex field and checks applicable radio button
 	let hex = getField('broadlinkField');
@@ -1151,7 +1208,7 @@ function freqHexCheck() {                       // Returns IR or RF value from B
 function ui_freqB64Check() {                    // Check IR or RF value in Broadlink B64 button
 	cleanOnClick();
 	freqB64Check();
-	return false;
+	// return false;
 }
 function freqB64Check() {                       // Returns IR or RF value from Broadlink B64 string and checks applicable radio button
 	let b64 = getField('broadB64Field');
@@ -1179,7 +1236,7 @@ function updateRadioType(freq, fieldSuffix) {   // _Updates radio buttons status
 function ui_freqHexSet() {                      // Apply IR or RF value in Broadlink Hex button
 	cleanOnClick();
 	freqHexSet();
-	return false;
+	// return false;
 }
 function freqHexSet() {                         // Changes Broadlink Hex string header to apply radio button choice (IR, RF433...)
 	let hex = getField('broadlinkField');
@@ -1188,7 +1245,7 @@ function freqHexSet() {                         // Changes Broadlink Hex string 
 function ui_freqB64Set() {                      // Apply IR or RF value in Broadlink B64 button
 	cleanOnClick();
 	freqB64Set()
-	return false;
+	// return false;
 }
 function freqB64Set() {                         // Changes Broadlink B64 string header to apply radio button choice (IR, RF433...)
 	let hex = base64ToHex(getField('broadB64Field'));
@@ -1202,12 +1259,12 @@ function setBrHexFreq(hex, fieldSuffix) {       // _Changes signal type in Broad
 	return freq + hex.slice(2);                             // slice() doesn't return an error when a string is empty
 }
 
-// Repeat functions ------------------------------------------------------------------------------------------------------>	
+// Broadlink Repeat functions --------------------------------------------------------------------------------------------------->	
 
 function ui_hexReadRepeats() {                        // Read repeats from Broadlink Hex button
 	cleanOnClick();
 	hexReadRepeats();
-	return false;
+	// return false;
 }
 function hexReadRepeats() {                           // ** Main- Refreshes number of repeats in Broadlink Hex field
 	let hex = getField('broadlinkField')
@@ -1216,7 +1273,7 @@ function hexReadRepeats() {                           // ** Main- Refreshes numb
 function ui_b64ReadRepeats() {                       // Read repeats from Broadlink B64 button
 	cleanOnClick();
 	b64ReadRepeats();
-	return false;
+	// return false;
 }
 function b64ReadRepeats() {                          // ** Main- Refreshes number of repeats in Broadlink B64 field
 	let hex = base64ToHex(getField('broadB64Field'));
@@ -1233,7 +1290,7 @@ function ui_hexSetRepeats() {                        // ** Main- Change Broadlin
 	}
 	setFocus('hexRepeats');
 
-	return false;
+	// return false;
 }
 function ui_b64SetRepeats() {                        // ** Main- Change Broadlink B64 repeats button
 	cleanOnClick();
@@ -1247,15 +1304,15 @@ function ui_b64SetRepeats() {                        // ** Main- Change Broadlin
 	}
 	setFocus('b64Repeats');
 
-	return false;
+	// return false;
 }
-function getHexRepeats(hex) {                        // _Returns number of repeats from a Hex sequence
+function getHexRepeats(hex) {                               // _Returns number of repeats from a Hex sequence
 	hex = hex.replace(/ /g, '');                  // Removes spaces if any
 	let repeats = hex.substring(2,4);             // Reads second pair of chars as text - Changed from js - was: hex.subst(2,2)
 	let decimal = parseInt(repeats,16);           // Converts Hex text string to decimal value 
 	return decimal;                               //
 }
-function setHexRepeats(hex,vrepeats) {               // _Sets number of repeats in a Hex sequence
+function setHexRepeats(hex,vrepeats) {                      // _Sets number of repeats in a Hex sequence
 	hex = hex.replace(/ /g, '');      // Removes spaces if any
 	let lstring = hex.substring(0,2);
 	let rstring = hex.substring(4,hex.length);
@@ -1263,7 +1320,7 @@ function setHexRepeats(hex,vrepeats) {               // _Sets number of repeats 
 	if (repeats.length === 1) repeats = "0" + repeats;
 	return lstring + repeats + rstring;
 }
-function checkRepeatsInput(repeats) {                // _sanity check on repeats value, returns true if OK
+function checkRepeatsInput(repeats) {                       // _sanity check on repeats value, returns true if OK
 	if (repeats >= 0 && repeats < 256) { return true };
 	message("Repeats value must be between 0 and 255");
 	return false;
@@ -1274,18 +1331,22 @@ function checkRepeatsInput(repeats) {                // _sanity check on repeats
 function ui_shortToCommand() {                        // Short ==> Command small button
 	cleanOnClick();
 	shortToCommand();
-	return false;
+	// return false;
 }
 function shortToCommand() {                           // ** Main- Short ==> Command function call **************************
 
-	let short = getField('cShortField');
-	setField('cCommandField', getCommandFromShort(short));
+	let short = stripHex(getField('cShortField'),4);            // Removes spaces and + signs ; min length set to 4
+	setField('cShortField' , formatShort(short, 0, 4));         // Republishes the correct string in field (even if empty)
+	if (short == '') {return}
+	let hex = getCommandFromShort(short)
+	output += hex;
+	setField('cCommandField', hex);
 
 }
 function ui_commandToShort() {                       // Command ==> Short  small button
 	cleanOnClick();
 	commandToShort();
-	return false;
+	// return false;
 }
 function commandToShort() {                           // ** Main- Command ==> Short function call **************************
 
@@ -1298,7 +1359,7 @@ function ui_convertCodes() {                          // Convert from Codes butt
 	convertCodes();
 	refreshAll(false);
 	setFocus('cCommandField');                              // To make it clear that priority has been given to Lirc field over Command field
-	return false;
+	// return false;
 }
 function convertCodes() {                             // ** Main- Converts all fields from Codes values **********************
 
@@ -1316,8 +1377,7 @@ function convertCodes() {                             // ** Main- Converts all f
 		lircCommand = getField('cCommandField');
 	}
 	if (one && zero && lircCommand) {
-		let bin = hexTobin(lircCommand);
-		
+		let bin = hexTobin(lircCommand);		
 		let raw = buildRaw(header,one,zero,ptrail,gap,bin);
 		setField('rawField', raw);		                           // Publish Raw without headers
 		if (freq) {
@@ -1333,7 +1393,7 @@ function ui_convertPronto() {                         // Convert from Pronto but
 	convertPronto(getField('prontoField'));
 	refreshAll(true);
 	setFocus('prontoField');
-	return false;
+	// return false;
 }
 function convertPronto(pronto) {                      // ** Main- Converts all fields from Pronto string value ***************
 
@@ -1343,14 +1403,13 @@ function convertPronto(pronto) {                      // ** Main- Converts all f
 	setField('broadlinkField', broadlinkHex);
 	setField('broadB64Field', hexToBase64(broadlinkHex));
 
-	return false
 }
 function ui_convertDecimal() {                        // Convert from decimal button
 	cleanOnClick();
 	convertDecimal(getField('decimalField'));
 	refreshAll(true);
 	setFocus('decimalField');
-	return false;
+	// return false;
 }
 function convertDecimal(decimal) {                    // ** Main- Converts all fields from decimal string value **************
 
@@ -1361,14 +1420,13 @@ function convertDecimal(decimal) {                    // ** Main- Converts all f
 	setField('broadlinkField', broadlinkHex);
 	setField('broadB64Field', hexToBase64(broadlinkHex));
 
-	return false
 }
 function ui_convertRaw() {                            // Convert from Raw button
 	cleanOnClick();
 	convertRaw(getField('rawField'));
 	setFocus('rawField');
 	refreshAll(true);
-	return false;
+	// return false;
 }
 function convertRaw(raw) {                            // ** Main- Converts all fields from Raw string value *****************
 
@@ -1390,14 +1448,13 @@ function convertRaw(raw) {                            // ** Main- Converts all f
 
 	setField('rawField', getRawFromPronto(pronto).join(", "));			// In case raw had no header, let's use convert back from Pronto to refresh the whole string
 
-	return false
 }
 function ui_convertBroadlink() {                      // Convert from Broadlink Hex button
 	cleanOnClick();
 	convertBroadlink(getField('broadlinkField'));
 	refreshAll(true);
 	setFocus('broadlinkField');
-	return false;
+	// return false;
 }
 function convertBroadlink(broadlinkHex) {             // ** Main- Converts all fields from Broadlink string value ************
 
@@ -1418,14 +1475,13 @@ function convertBroadlink(broadlinkHex) {             // ** Main- Converts all f
 	let pronto = getProntoFromRaw(raw, freq);
 	setField('prontoField', pronto);
 
-	return false
 }
 function ui_convertB64() {                            // Convert from Broadlink B64 button
 	cleanOnClick();
 	convertB64(getField('broadB64Field'));
 	refreshAll(true);
 	setFocus('broadB64Field');
-	return false;
+	// return false;
 }
 function convertB64(b64) {                            // ** Main- Converts all fields from Broadlink B64 string value ********
 
@@ -1445,24 +1501,19 @@ function convertB64(b64) {                            // ** Main- Converts all f
 	let pronto = getProntoFromRaw(raw, freq);
 	setField('prontoField', pronto);
 
-	return false
 }
-function getCommandFromShort(hex) {                            // Converts short IR command to expanded one i.e. 'A559+A502' to 'a55a 9a65 + a55a 40bf'
-	hex = stripHex(hex, 4);                                       // Removes spaces and + signs ; min length set to 4
-	if (hex != '') {
-		setField('cShortField' , formatShort(hex, 0, 4));         // Republishes the correct string in field
-		let command = '';                                         //
-		while (hex.length > 3) {                                  // If not proper groups of pairs, will add a lonely + at the end
-			command += necPair(hex.slice(0,4));                   //  rather than throw an error
-			hex = hex.slice(4);                                   //  i.e. 'A559+A50' to 'a55a 9a65 +', which sounds better than
-		}
-		command = formatShort(command, 4, 8);
-		if(hex) {                                                 // if any extra non-treated values,
-			command += ' (+)';                                    //  Marks string to indicate result is partial 
-			output += 'Bytes quantity seems invalid - displaying partial conversion\n';
-		}
-		return command;
+function getCommandFromShort(short) {                          // Converts short IR command to expanded one i.e. 'A559+A502' to 'a55a 9a65 + a55a 40bf'
+	let command = '';                                           //
+	while (short.length > 3) {                                  // If not proper groups of pairs, will add a lonely + at the end
+		command += necPair(short.slice(0,4));                   //  rather than throw an error
+		short = short.slice(4);                                 //  i.e. 'A559+A50' to 'a55a 9a65 +', which sounds better than
 	}
+	command = formatShort(command, 4, 8);
+	if(short) {                                                 // if any extra non-treated values,
+		command += ' (+)';                                      //  Marks string to indicate result is partial 
+		output += 'Bytes quantity seems invalid - displaying partial conversion\n';
+	}
+	return command;
 }
 function getShortFromCommand(hex, opt) {                        // Tries to convert expanded IR command to short one i.e. 'a55a 9a65 + a55a 40bf' to 'A559+A502' 
 	//                                                                if opt, function will throw errors and update fields
@@ -1631,28 +1682,28 @@ function decToHex(str) {                        // Converts a decimal string to 
 	let hex = dec.map((e) => e.toString(16).padStart(4, "0"));
 	return hex.join(' ');
 }
-function buildRaw(header,one,zero,ptrail,gap,bin) {      // Generates Raw from Lirc, returns as string
-	let str = [];
-	str[0] = cleanHeader(zero);                      // Cleans separators in the three fields that have multiple values
-	str[1] = cleanHeader(one);                       //
+function buildRaw(header,one,zero,ptrail,gap,bin) {      // Generates Raw from Lirc command, returns command as string of decimals with ',' separators
+	let str = [], raw = [];
+	str[0] = cleanHeader(zero);                      // Builds a small temp array to store zero and one strings,
+	str[1] = cleanHeader(one);                       // while cleaning separators in the three fields that have multiple values
 	header = cleanHeader(header);                    //
-	info(header + ', [' + bin + '], ' + ptrail + ',' + gap)
-	let raw = [];
-	let tmp;
+	
 	if (header) {raw.push(header)};
-	for (let i in bin) {                             // IR Payload
-		tmp = bin.substr(i,1);
-		raw.push(str[parseInt(tmp)]);
-		if ((i == 31) || (i ==63)) {
-			if (ptrail) {raw.push(ptrail)};
-			// if (gap) {raw.push(gap)};
+
+	for (i = 0; i < bin.length; i++) {              // IR Payload (can't use 'i in bin' here as i needs to be numerical)
+		raw.push(str[parseInt(bin.charAt(i))]);     // Pushes zero or one string
+		if (!((i+1) % 32)) {						// Pushes a ptrail every 32 bits (bit 0 will always be skipped as test starts at i+1) 
+			if (ptrail) {raw.push(ptrail)};         // 
 			if (bin.length > i +1) {
-				if (header) {raw.push(header)};
+				if (header) {raw.push(header)};     // Pushes header at the end (if length is a multiple of 32)
 			}
 		}
 	}
-	if (gap) {raw.push(gap)};
-	return raw.join(",");
+	if (gap) {raw.push(gap)};                       // Completes by pushing gap
+
+	info(header + ', [' + bin + '], ' + ptrail + ',' + gap);
+
+	return raw.join(',');
 }
 function cleanHeader(str) {
 	str = str.replace(/[ ;\+\-]/g, ',');                      // Replaces spaces, ; + or - with commas if any

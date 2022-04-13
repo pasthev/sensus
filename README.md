@@ -1,15 +1,19 @@
 # sensus
  Sensus IR & RF Codes converter
-**[pasthev.github.io/sensus/](https://pasthev.github.io/sensus/)**
+**[View online](https://pasthev.github.io/sensus/)**
 
 ### Sensus IR & RF codes converter / analyzer for Lirc, Pronto, Broadlink & raw codes
 
 A project to provide an online IR/RF code converting interface and framework.
+The tool doesn't do as much as dedicated software (i.e. IRscrutinizer), but has the
+advantage of being instantly available online.
+Interface is easy to update with additional panels if needed - feel free to fork and
+add your own protocols.
 
 
 ## What Sensus IR & RF does
 
-### Instant code conversion to and from:
+### Code conversion to and from:
 * Lirc codes
 * Pronto
 * Decimal
@@ -18,8 +22,14 @@ A project to provide an online IR/RF code converting interface and framework.
 * Broadlink Base 64 (Used in Home Assistant)
 
 ### Frequency change
-* Instantly read or change frequency in Lirc / Pronto / Decimal / Raw frames
-* Instantly read or change IR / RF433 / RF315 in Brodaling Hex or Base 64 code
+* Read or change frequency in Lirc / Pronto / Decimal / Raw frames
+* Read or change IR / RF433 / RF315 in Brodalink Hex or Base 64 code
+
+### Broadlink repeats change
+* Read or change Broadlink repeats in Hex or B64
+
+### Code conversion to and from:
+* Random IR / RF codes generation
 
 ### IR/RF frames analysis
 * Frames decoding in detailled logged view
@@ -29,7 +39,8 @@ A project to provide an online IR/RF code converting interface and framework.
 
 ## About the code
 
-There are many other IR/RF standards that I just ignored here: so far I only added the ones I was facing...
+There are many other IR/RF standards that I just ignored here: so far I only added the ones
+I was facing, during my experiments with Home Assistant and Jeedom domotic solutions...
 But the html/css interface I'm providing makes it easy to add panels for other protocols, 
 and the code should be documented enough for anyone to easily add components of their own,
 as well as new buttons to the Raw analysis interface when needed.

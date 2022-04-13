@@ -1,13 +1,3 @@
-
-<!-- Todo:	
-			- handle <Return> keypresses
-			- copy button in Commands panel does nothing yet -> copy as Lirc txt file ?
-			- return false from all ui_ functions (in case form would be used in an iframe, i.e. in Google Sites)
-			- search hardcoded "var freq = 38029"
-			- freqSetLirc to cleanup, 
-			- *Setting Decimal frequency only changes freq byte, not values !
--->
- 
 <html lang="en" class="inv">      <!-- class will be used to toggle color modes -->
 <head>
   <meta charset="UTF-8">
@@ -309,7 +299,7 @@
 					<input name="Copy" type="submit"  formaction="javascript: ui_copy('testField')" value="✂ Copy"/>
 					<input name="bTest1" type="submit" formaction="javascript: ui_check()" value="➀ Check"/>
 					<input name="bTest1" type="submit" formaction="javascript: ui_repeats()" value="♲ Repeats"/>
-					<input name="bTest2" type="submit" formaction="javascript: ui_clearAll()" value="🗑 Clear"/>
+					<input name="bTest2" type="submit" formaction="javascript: ui_clearAll()" value="🗑 Clear all"/>
 				</div>
 			</div>
 		</form>
