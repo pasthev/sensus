@@ -594,14 +594,14 @@ function readRaw() {                                        // * Main Raw analys
 	prefix += ' / Gap: ' + gap
 
 	prefix += ' / Full analysis below.';
-	output += prefix + '\n\n' + output;
+	output = prefix + '\n\n' + output;
 
 	// * Reports to Command panel --------------------------------------------------------------------------------------------------
 
 	if (sequence.type != '') {                                            // Bibits! :)
 		setField('cOneField', oneString);                                   // Injects Lirc values in Commands form
 		setField('cZeroField', zeroString);
-		setField('cCommandField', formatShort(lastCommand, 0, 4));
+		setField('cCommandField', formatShort(lastCommand, 4, 8));
 		setField('cShortField', formatShort(lastShort, 0, 4));
 		setField('cGapField', gap); 
 		setField('cHeaderField', header.join(', '));
@@ -992,7 +992,7 @@ function ui_acme(category) {            // Fills "Category" data with test value
 	cleanOnClick();
 	switch (category) {
 		case 'Commands':
-			// acmeCommands(); break;
+			acmeCommands(); break;
 		case 'Pronto':
 			acmePronto(); break;
 		case 'Decimal':
@@ -1033,7 +1033,8 @@ function acmeDecimal() {                // Fills Decimal data with test value
 function acmeRaw() {                    // Fills Raw data with test value
 	// setField('rawField', '0, 115, 0, 12, 888, 888, 888, 888, 1776, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 1776, 1776, 888, 888, 888, 888, 888, 888, 90943');
 	buildRandom();
-	freqReadRaw();
+	setField('freqFieldRaw', freq38)
+	freqSetRaw();
 	setFocus('rawField');
 }
 function acmeBroadlink() {              // Fills Broadlink data with test value
