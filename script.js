@@ -966,7 +966,6 @@ function buildRandom() {
 	let gap = v0 * 80 + getRandomInt(10000);
 
 	output += `Header: ${header} One: ${one} Zero: ${zero} Ptrail: ${ptrail} Gap: ${gap} Bin command: ${bin}\n`
-	output += 'Modulo:' + 0 % 32 + '\n';
 	let raw = buildRaw(header,one,zero,ptrail.toString(),gap.toString(),bin);
 	setField('rawField', raw);		                           // Publish Raw without headers
 	/*
