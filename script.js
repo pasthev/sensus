@@ -17,6 +17,7 @@ const maxFactor = 5                        // defines max factor value between z
 const freq38 = 38029
 const broadlinkUnit = 269 / 8192;          // 32.84ms units, or 2^-15s ;
 const activeDebug = false
+const NEC = 'Nec', ONEHOT = 'One-Hot';
  
 
 // Interface functions --------------------------------------------------------------------------------------------------->	
@@ -661,6 +662,7 @@ i
 
 	if (found != '') {
 		hex = parseInt(result, 2).toString(16);                    // i.e. hex = 53a58409
+		if (hex.length % 2) {hex = '0' + hex};                     // padStart simply based on length parity
 		shift = len -i - result.length * 2;                        // Calculates Right shift, while left shift is i
 
 		if (found == 'Nec') {                                      // Only Nec type is worth searching for a search command,
@@ -936,11 +938,11 @@ function checkPtrail(str, seqStart) {                                // * unused
 
 // Acme functions --------------------------------------------------------------------------------------------------------->	
 
-function buildRandom() {
-	let command, short;
+function buildRandom(hexLen, type) {               // Generates a random raw from a %long length (random if %length = 0), with type = 'nec' or 'oneHot'
+	let command, short, one, zero;
 	
-	let random = getRandomInt(6);
-	switch (random) {
+	if (!hexLen) {hexLen = getRandomInt(6)};
+	switch (hexLen) {
 		case 0:                                        // generates a 2-bytes hex short, i.e. 'a51a'
 			short = getRandomHex(2);                   //
 			command = getCommandFromShort(short);      // and pulls command from it, i.e. 'a55a 58a7'
@@ -950,15 +952,20 @@ function buildRandom() {
 			command = getCommandFromShort(short);      // and pulls command from it, i.e. '54ab 5aa5 + f708 f20d'
 			break
 		default:                                       // generates a 1-4 bytes hex command with no short associated
-			command = getRandomHex(random);
+			command = getRandomHex(hexLen);
 	}
-	output += `Random: ${random} Short: ${short} Command: ${command}\n`
+	output += `Random ${type} sequence: ${hexLen} - Short: ${short} - Command: ${command}\n`
 
 	let bin = hexTobin(command);
 	let v0 = 300 + getRandomInt(500);
 	let v1 = Math.floor(v0 * (2 + Math.random()));
-	let one = v0.toString() + ' ' + v1.toString();
-	let zero = v0.toString() + ' ' + v0.toString();
+	if (type == ONEHOT) {
+		one = v1.toString() + ' ' + v0.toString();           // Prepares One-Hot bibits (01b=zero / 10b=one)
+		zero = v0.toString() + ' ' + v1.toString();
+	} else {
+		one = v0.toString() + ' ' + v1.toString();           // Prepares Nec bibits (00b=zero / 01b=one)
+		zero = v0.toString() + ' ' + v0.toString();
+	}
 	let h1 = v0 * (5 + getRandomInt(5)) + Math.floor(v0 * (2 + Math.random()));
 	let h2 = Math.floor(h1 * (.5 + Math.random() * 2));
 	let header = `${h1}, ${h2}`
@@ -967,7 +974,6 @@ function buildRandom() {
 
 	output += `Header: ${header} One: ${one} Zero: ${zero} Ptrail: ${ptrail} Gap: ${gap} Bin command: ${bin}\n`
 	let raw = buildRaw(header,one,zero,ptrail.toString(),gap.toString(),bin);
-	setField('rawField', raw);		                           // Publish Raw without headers
 	/*
 	if (freq) {
 		setField('freqFieldRaw', freq);                        // Temporarily fills Raw frequency field
@@ -975,7 +981,7 @@ function buildRandom() {
 	}
 	command = getCommandFromShort(short) 
 */
-	write(output); output = '';
+	return raw;
 }
 function getRandomInt(max) {
 	return Math.floor(Math.random() * max);
@@ -1021,6 +1027,7 @@ function acmeCommands() {               // Fills Commands data with test values
 }
 function acmePronto() {                 // Fills Pronto data with test value
 	setField('prontoField', '0000 006d 0022 0000 00ab 00a9 0016 003f 0016 003f 0016 003f 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 003f 0016 003f 0016 003f 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 003f 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 003f 0016 0014 0016 003f 0016 003f 0016 003f 0016 003f 0016 003f 0016 003f 0016 06eb');
+	// setField('prontoField', pronto);
 	freqReadPronto();
 	setFocus('prontoField');
 }
@@ -1031,22 +1038,52 @@ function acmeDecimal() {                // Fills Decimal data with test value
 }
 function acmeRaw() {                    // Fills Raw data with test value
 	// setField('rawField', '0, 115, 0, 12, 888, 888, 888, 888, 1776, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 1776, 1776, 888, 888, 888, 888, 888, 888, 90943');
-	buildRandom();
+	let raw = buildRandom(0, NEC);	                       // length = random / type = 'Nec' (using constant)
+	setField('rawField', raw);		                       // Publish Raw without headers
 	setField('freqFieldRaw', freq38)
 	freqSetRaw();
+	write(output); output = '';
 	setFocus('rawField');
 }
 function acmeBroadlink() {              // Fills Broadlink data with test value
-	setField('broadlinkField', '26001a001d1d1d1d3a1d1d1d1d1d1d1d1d1d1d3a3a1d1d1d1d1d1d000baa0d05000000000000000000000000');
+
+	// setField('broadlinkField', '26001a001d1d1d1d3a1d1d1d1d1d1d1d1d1d1d3a3a1d1d1d1d1d1d000baa0d05000000000000000000000000');
+
+	let sigType = setBrHexFreq('', '')
+	let repeats = parseInt(getField('hexRepeats'));
+	let broadlinkHex = acmeBroadGen(sigType, repeats);
+
+	setField('broadlinkField', broadlinkHex);
+
+	write(output); output = '';
 	freqHexCheck();
 	hexReadRepeats();
 	setFocus('broadlinkField');
 }
 function acmeBroadB64() {               // Fills Broadlink B64 data with test value
-	setField('broadB64Field', 'sgUyAAYUBxMHFBMHBxQTBwYUBxMHFBMHBxQTBwYUEwcGFBMHEwcTBwYUBxQSBxMHBhMHEwa/AAA=');
+	// setField('broadB64Field', 'sgUyAAYUBxMHFBMHBxQTBwYUBxMHFBMHBxQTBwYUEwcGFBMHEwcTBwYUBxQSBxMHBhMHEwa/AAA=');
+
+	let sigType = setBrHexFreq('', 'b64')
+	let repeats = parseInt(getField('b64Repeats'));
+	let broadlinkHex = acmeBroadGen(sigType, repeats);
+
+	setField('broadB64Field', hexToBase64(broadlinkHex));
+	write(output); output = '';
 	freqB64Check();
 	b64ReadRepeats();	
 	setFocus('broadB64Field');
+}
+function acmeBroadGen(sigType, repeats) {              // Generate random Broadlink hex code
+
+	let raw = buildRandom(2, ONEHOT);	                           // length = random / type = 'Nec' (using constant)
+	let freq = freq38;                                             // arbitrary, as we don't really care here since Broadlink won't store freq value
+	let pronto = getProntoFromRaw(raw, freq);
+	let broadlinkHex = getBroadlink(pronto, sigType).join('');
+	if (checkRepeatsInput(repeats)) {
+		broadlinkHex = setHexRepeats(broadlinkHex, repeats);
+	}
+
+	return broadlinkHex;
 }
 function acmeAnalysis() {               // Fills Analysiis data with test values
 	setField('headerLength', '3');
@@ -1251,14 +1288,15 @@ function freqB64Set() {                         // Changes Broadlink B64 string 
 	let hex = base64ToHex(getField('broadB64Field'));
 	setField('broadB64Field', hexToBase64(setBrHexFreq(hex, 'b64'))); 
 }
-function setBrHexFreq(hex, fieldSuffix) {       // _Changes signal type in Broadlink Hex to IR/RF/RF according to designated suffix radio buttons
+function setBrHexFreq(hex, fieldSuffix) {       // checks 'rbIR0' or 'rbIR0b64' radio buttons, returns %string modified with 26/b2/d7 prefix
+	//                                               (changes signal type in Broadlink Hex to IR/RF/RF according to designated suffix radio buttons)
 	//                                               (exploits the naming convention, appending 'b64' suffix to fieldnames if B64 call)
 	let freq = '26';                                                  // no need to check 'rbIR' .checked here
 	if (document.getElementById('rbRF4' + fieldSuffix).checked) {freq = 'b2'};
 	if (document.getElementById('rbRF3' + fieldSuffix).checked) {freq = 'd7'};
+
 	return freq + hex.slice(2);                             // slice() doesn't return an error when a string is empty
 }
-
 // Broadlink Repeat functions --------------------------------------------------------------------------------------------------->	
 
 function ui_hexReadRepeats() {                        // Read repeats from Broadlink Hex button
@@ -1315,9 +1353,8 @@ function getHexRepeats(hex) {                               // _Returns number o
 function setHexRepeats(hex,vrepeats) {                      // _Sets number of repeats in a Hex sequence
 	hex = hex.replace(/ /g, '');      // Removes spaces if any
 	let lstring = hex.substring(0,2);
-	let rstring = hex.substring(4,hex.length);
-	let repeats = vrepeats.toString(16);
-	if (repeats.length === 1) repeats = "0" + repeats;
+	let rstring = hex.slice(4);
+	let repeats = vrepeats.toString(16).padStart(2, '0');
 	return lstring + repeats + rstring;
 }
 function checkRepeatsInput(repeats) {                       // _sanity check on repeats value, returns true if OK

@@ -28,8 +28,11 @@ add your own protocols.
 ### Broadlink repeats change
 * Read or change Broadlink repeats in Hex or B64
 
-### Code conversion to and from:
-* Random IR / RF codes generation
+### Random IR / RF codes generation:
+* Independant random codes generation in various formats
+* Broadlink random codes generation, in Hex or B64 format:
+  * Allows to pre-set Repeat values
+  * Allows to pre-set Signal type (IR / RF433 / RF315)
 
 ### IR/RF frames analysis
 * Frames decoding in detailled logged view
