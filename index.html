@@ -6,6 +6,11 @@
   <script src="script.js"></script>
 </head>
 <body>
+
+<!----------------------------------------------------------------------------------------------------------------------------->
+<!-- Top toolbar section -->
+<!----------------------------------------------------------------------------------------------------------------------------->
+
 	<div class="theme-container color-c4">
 		<form name="form-theme">
 			<input name="theme-col" type="submit" class="miniB" formaction="javascript: ui_colorsToggle('col')" value="😛" style="margin: 0 5px"/>
@@ -31,7 +36,7 @@
 	<br>
 
 <!----------------------------------------------------------------------------------------------------------------------------->
-<!-- Codes section -->
+<!-- Commands section -->
 <!----------------------------------------------------------------------------------------------------------------------------->
 
 	<div class="container command" id = "fCommand">
@@ -51,6 +56,7 @@
 				<input name="bConvToComm" type="submit" class="small" style="width: 40px;" formaction="javascript: ui_commandToShort()" value="⮜"/>
 				<input type="transparent" id="cCommandField" style="width: 38%; "placeholder="A55A58A7"></input>
 				<label for="cCommandField" >&nbsp:Command</label>
+				</br>
 				<label for="cHeaderField">Header:</label>
 				<input type="transparent" id="cHeaderField" style="width: 100px; "placeholder="8548  4125"></input>
 				<label for="">One:</label>
@@ -73,12 +79,12 @@
 			</div>
 			<div class="col-75">
 				<input name="Submit" type="submit" formaction="javascript: ui_convertCodes()" style="width: 200px" value="✔ Convert"/>
-				<input name="Acme" type="submit"  formaction="javascript: ui_acme('Commands')" value="🧪"/>
+				<input name="Acme" type="submit"  formaction="javascript: ui_acme('Commands')" value="🎲"/>
 				<input name="Clear" type="submit"  formaction="javascript: ui_clear('Commands')" value="✖ Clear"/>
 				<input name="Copy" type="submit"  formaction="javascript: ui_copy('prontoField')" value="✂ Copy"/>
-				<input name="Paste" type="submit"  formaction="javascript: ui_acme('Commands')" value="✎ 36 KHz"/>
-				<input name="Paste" type="submit"  formaction="javascript: ui_acme('Commands')" value="✎ 38 KHz"/>
-				<input name="Paste" type="submit"  formaction="javascript: ui_acme('Commands')" value="✎ 40 KHz"/>
+				<input name="Paste" type="submit"  formaction="javascript: ui_freq(36)" value="✎ 36 KHz"/>
+				<input name="Paste" type="submit"  formaction="javascript: ui_freq(38)" value="✎ 38 KHz"/>
+				<input name="Paste" type="submit"  formaction="javascript: ui_freq(40)" value="✎ 40 KHz"/>
 			</div>
 			</div>
 
@@ -110,7 +116,7 @@
 					<!-- buttons section -->
 
 					<input name="Submit" type="submit" formaction="javascript: ui_convertPronto()" style="width: 200px" value="✔ Convert"/>
-					<input name="Acme" type="submit"  formaction="javascript: ui_acme('Pronto')" value="🧪"/>
+					<input name="Acme" type="submit"  formaction="javascript: ui_acme('Pronto')" value="🎲"/>
 					<input name="Clear" type="submit"  formaction="javascript: ui_clear('prontoField')" value="✖ Clear"/>
 					<input name="Paste" type="submit"  formaction="javascript: ui_paste('prontoField')" value="📋 Paste"/>
 					<input name="Copy" type="submit"  formaction="javascript: ui_copy('prontoField')" value="✂ Copy"/>
@@ -142,7 +148,7 @@
 					<!-- buttons section -->
 
 					<input name="Submit" type="submit" formaction="javascript: ui_convertDecimal()" style="width: 200px" value="✔ Convert"/>
-					<input name="Acme" type="submit"  formaction="javascript: ui_acme('Decimal')" value="🧪"/>
+					<input name="Acme" type="submit"  formaction="javascript: ui_acme('Decimal')" value="🎲"/>
 					<input name="Clear" type="submit"  formaction="javascript: ui_clear('decimalField')" value="✖ Clear"/>
 					<input name="Paste" type="submit"  formaction="javascript: ui_paste('decimalField')" value="📋 Paste"/>
 					<input name="Copy" type="submit"  formaction="javascript: ui_copy('decimalField')" value="✂ Copy"/>

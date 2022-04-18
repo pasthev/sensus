@@ -10,14 +10,14 @@
 			- All '// return false;' at the end of ui_ functions to be deleted / corrected (was initially meant for Google Sites embedding)
  */
 
-const tableStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-const table = tableStr.split("");
+const MAX_FACTOR = 5;                      // defines max factor value between zeros and ones in commands
+const FREQ36 = 36045;                      // Most common IR frequencies
+const FREQ38 = 38029;                      //
+const FREQ40 = 40244;                      //
+const BRDLNK_UNIT = 269 / 8192;            // Broadlink 32.84ms time units, or 2^-15s ;
+const NEC = 'Nec', ONEHOT = 'One-Hot';     // Just to make function calls a bit more understandable
 var output = '';                           // Buffer for output message in log window
-const maxFactor = 5                        // defines max factor value between zeros and ones in commands
-const freq38 = 38029
-const broadlinkUnit = 269 / 8192;          // 32.84ms units, or 2^-15s ;
 const activeDebug = false
-const NEC = 'Nec', ONEHOT = 'One-Hot';
  
 
 // Interface functions --------------------------------------------------------------------------------------------------->	
@@ -791,7 +791,7 @@ function findOne(seq, zero, factor) {                                // _Identif
 		return Math.round(sum / count);
 	} 
 	output += 'Could not find any ones with factor ' + factor + ', '
-	if (factor < maxFactor) {                                   // safeguard for recursive call
+	if (factor < MAX_FACTOR) {                                   // safeguard for recursive call
 		output += 'increasing factor. ';
 		factor ++
 		return findOne(seq, zero, factor);                      // recursive call
@@ -938,8 +938,9 @@ function checkPtrail(str, seqStart) {                                // * unused
 
 // Acme functions --------------------------------------------------------------------------------------------------------->	
 
-function buildRandom(hexLen, type) {               // Generates a random raw from a %long length (random if %length = 0), with type = 'nec' or 'oneHot'
-	let command, short, one, zero;
+function buildRandom(hexLen, type) {               // Generates a random sequence from a %long length (random if %length = 0), with type = 'nec' or 'oneHot'
+	//                                                Returns an object containing raw as well as commands
+	let command, short = '', one, zero;
 	
 	if (!hexLen) {hexLen = getRandomInt(6)};
 	switch (hexLen) {
@@ -974,14 +975,17 @@ function buildRandom(hexLen, type) {               // Generates a random raw fro
 
 	output += `Header: ${header} One: ${one} Zero: ${zero} Ptrail: ${ptrail} Gap: ${gap} Bin command: ${bin}\n`
 	let raw = buildRaw(header,one,zero,ptrail.toString(),gap.toString(),bin);
-	/*
-	if (freq) {
-		setField('freqFieldRaw', freq);                        // Temporarily fills Raw frequency field
-		convertRaw(getField('rawField'));
-	}
-	command = getCommandFromShort(short) 
-*/
-	return raw;
+
+	return {                        // Returns an object - Sample values:
+		'raw': raw,                 // '8546, 4128, 526, 1604, 526, 552, 526, 1604, 526, 552, [...] 1604, 526, 1604, 526, 1604, 526, 25822'
+		'command': command,
+		'short': short,
+		'header': header,           // '8548, 4125'
+		'one': one,                 // '522 1615'
+		'zero': zero,               // '522 547'
+		'ptrail': ptrail,           // '522'
+		'gap': gap,                 // '25817'
+	};
 }
 function getRandomInt(max) {
 	return Math.floor(Math.random() * max);
@@ -1015,32 +1019,59 @@ function ui_acme(category) {            // Fills "Category" data with test value
 }
 function acmeCommands() {               // Fills Commands data with test values
 	
-	setField('cShortField', 'A51A');
+	/*setField('cShortField', 'A51A');
 	setField('cCommandField', '');
 	setField('cPreField', '');
 	setField('cHeaderField', '8548, 4125');
 	setField('cOneField', '522; 1615');
 	setField('cZeroField', '522; 547');
 	setField('cPtrailField', '522');
-	setField('cGapField', '25817');
-	setField('cFreqField', freq38);
+	setField('cGapField', '25817'); */
+
+	let random = buildRandom(0, NEC);	              // length = random / type = 'Nec' (using constant)
+	setField('cShortField', random.short);
+	setField('cCommandField', random.command);
+	setField('cPreField', '');
+	setField('cHeaderField', random.header);
+	setField('cOneField', random.one);
+	setField('cZeroField', random.zero);
+	setField('cPtrailField', random.ptrail);
+	setField('cGapField', random.gap);
+	let freq = parseInt(getField('cFreqField'));      // Frequency verification
+	if (!checkFreqInput(freq, true)) {                // if Command Freq field is empty or user has typed a wrong value,
+		setField('cFreqField', FREQ38);               //   defaults to 38 KHz
+	}                                                 //
 }
-function acmePronto() {                 // Fills Pronto data with test value
-	setField('prontoField', '0000 006d 0022 0000 00ab 00a9 0016 003f 0016 003f 0016 003f 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 003f 0016 003f 0016 003f 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 003f 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 003f 0016 0014 0016 003f 0016 003f 0016 003f 0016 003f 0016 003f 0016 003f 0016 06eb');
+function acmePronto() {                 // Fills Pronto data with random value (actually a conversion from random raw)
+
+	//setField('prontoField', '0000 006d 0022 0000 00ab 00a9 0016 003f 0016 003f 0016 003f 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 003f 0016 003f 0016 003f 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 003f 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 0014 0016 003f 0016 0014 0016 003f 0016 003f 0016 003f 0016 003f 0016 003f 0016 003f 0016 06eb');
 	// setField('prontoField', pronto);
+
+	let raw = buildRandom(0, NEC).raw;	                       // length = random / type = 'Nec' (using constant)
+	let pronto = getProntoFromRaw(raw, FREQ38);
+	setField('prontoField', pronto);
+	write(output); output = '';
 	freqReadPronto();
 	setFocus('prontoField');
 }
-function acmeDecimal() {                // Fills Decimal data with test value
-	setField('decimalField', '0L, 109L, 34L, 0L, 171L, 169L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 63L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 63L, 22L, 20L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 1771L');
+function acmeDecimal() {                // Fills Decimal data with random value (actually a conversion from random raw)
+
+	//setField('decimalField', '0L, 109L, 34L, 0L, 171L, 169L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 63L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 20L, 22L, 63L, 22L, 20L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 63L, 22L, 1771L');
+
+	let raw = buildRandom(0, NEC).raw;	                       // length = random / type = 'Nec' (using constant)
+	let dec = getDecimalFromRaw(raw, FREQ38);
+	setField('decimalField', dec.join("L, ") + "L");
+	write(output); output = '';
 	freqReadDecimal();
 	setFocus('decimalField');
 }
 function acmeRaw() {                    // Fills Raw data with test value
+
 	// setField('rawField', '0, 115, 0, 12, 888, 888, 888, 888, 1776, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 1776, 1776, 888, 888, 888, 888, 888, 888, 90943');
-	let raw = buildRandom(0, NEC);	                       // length = random / type = 'Nec' (using constant)
+
+	let raw = buildRandom(0, NEC).raw;	                       // length = random / type = 'Nec' (using constant)
 	setField('rawField', raw);		                       // Publish Raw without headers
-	setField('freqFieldRaw', freq38)
+	setField('freqFieldRaw', FREQ38)
 	freqSetRaw();
 	write(output); output = '';
 	setFocus('rawField');
@@ -1073,10 +1104,10 @@ function acmeBroadB64() {               // Fills Broadlink B64 data with test va
 	b64ReadRepeats();	
 	setFocus('broadB64Field');
 }
-function acmeBroadGen(sigType, repeats) {              // Generate random Broadlink hex code
+function acmeBroadGen(sigType, repeats) {              // _Generates random Broadlink hex code
 
-	let raw = buildRandom(2, ONEHOT);	                           // length = random / type = 'Nec' (using constant)
-	let freq = freq38;                                             // arbitrary, as we don't really care here since Broadlink won't store freq value
+	let raw = buildRandom(2, ONEHOT).raw;	                           // length = random / type = 'Nec' (using constant)
+	let freq = FREQ38;                                             // arbitrary, as we don't really care here since Broadlink won't store freq value
 	let pronto = getProntoFromRaw(raw, freq);
 	let broadlinkHex = getBroadlink(pronto, sigType).join('');
 	if (checkRepeatsInput(repeats)) {
@@ -1085,7 +1116,7 @@ function acmeBroadGen(sigType, repeats) {              // Generate random Broadl
 
 	return broadlinkHex;
 }
-function acmeAnalysis() {               // Fills Analysiis data with test values
+function acmeAnalysis() {               // Fills Analysis data with test values
 	setField('headerLength', '3');
 	setField('trailerLength', '1');
 	// setField('testField', '10020, 6761, 275, 305, 670, 670, 275, 275, 701, 305, 670, 305, 670, 305, 670, 275, 701, 275, 701, 305, 670, 640, 305, 275, 701, 275, 670, 305, 670, 305, 701, 275, 670, 305, 701, 640, 275, 305, 670, 305, 670, 305, 670, 305, 670, 305, 670, 305, 670, 670, 275, 670, 275, 305, 670, 640, 305, 305, 670, 305, 670, 305, 670, 275, 701, 640, 305, 275, 10020, 6761, 275, 305,');
@@ -1097,6 +1128,18 @@ function acmeAnalysis() {               // Fills Analysiis data with test values
 
 // Frequency functions --------------------------------------------------------------------------------------------------->	
 
+function ui_freq(button) {                      // Frequency buttons in Commands Panel
+    switch (button) {                     //
+        case 36:
+			setField('cFreqField', FREQ36);
+            break;
+		case 38:
+			setField('cFreqField', FREQ38);
+			break;
+        default:
+			setField('cFreqField', FREQ40);
+    }
+}
 function checkFreqInput(freq, warn) {
 	if (freq > 63 && freq < 4145146) { return true };
 	if (warn) {message("Frequency must be between 63 Hz and 4145146 Hz")};
@@ -1128,7 +1171,7 @@ function freqFromDecimal(str, newFreq, raw) {   // Returns modified dec. str wit
 	}
 	
 	if (raw) {                                                 // if working on raw, it's acceptable to have no header
-		clrField('freqFieldRaw')
+		//
 	} else {                                                   // if not working on raw, throw error as header is missing
 		output += 'Raw IR String seems wrong: ' + str + '\n';
 	}return 0;
@@ -1467,10 +1510,10 @@ function ui_convertRaw() {                            // Convert from Raw button
 }
 function convertRaw(raw) {                            // ** Main- Converts all fields from Raw string value *****************
 
-	let freq = freqFromDecimal(raw, 0, true)
+	let freq = freqFromDecimal(raw, 0, true)          // Checks if raw contains hard-coded frequency value (if not, 'freqFieldRaw' gets reset)
 	if (!checkFreqInput(freq, false)) {
 		freq = getField('freqFieldRaw');
-		if (!checkFreqInput(freq, false)) {freq = freq38;}					// In case Raw would have no valid frequency / length header
+		if (!checkFreqInput(freq, false)) {freq = FREQ38;}					// In case Raw would have no valid frequency / length header
 	}
 
 	let dec = getDecimalFromRaw(raw, freq);
@@ -1499,7 +1542,7 @@ function convertBroadlink(broadlinkHex) {             // ** Main- Converts all f
 	as long as newly generated payloads will be properly converted in target formats where timecodes are factorized (i.e. Pronto) 
 	(« non verbum e verbo sed sensum de sensu ») */
 
-	let freq = freq38;                                          // Here for the arbitrary frequency
+	let freq = FREQ38;                                          // Here for the arbitrary frequency
 
 	let raw = getRawFromBroadlink(broadlinkHex).join(", ");
 	setField('rawField', raw);
@@ -1522,7 +1565,7 @@ function ui_convertB64() {                            // Convert from Broadlink 
 }
 function convertB64(b64) {                            // ** Main- Converts all fields from Broadlink B64 string value ********
 
-	let freq = freq38;                                          // See comment in convertBroadlink function
+	let freq = FREQ38;                                          // See comment in convertBroadlink function
 
 	let broadlinkHex = base64ToHex(b64);
 	setField('broadlinkField', broadlinkHex);
@@ -1617,7 +1660,7 @@ function getRawFromPronto(str) {               // Converts Pronto string to Raw
 function getRawFromBroadlink(str) {
   let dec = [];
   let hex;
-  let unit = broadlinkUnit;                                                     // 32.84ms units, or 2^-15s ;
+  let unit = BRDLNK_UNIT;                                                    // 32.84ms units, or 2^-15s ;
   //
   // dec[0] = parseInt(str.substring(0,2),16);                               // Broadlink header 1: 0x26=IR, 0xb2=RF 433Mhz, 0xd7=RF 315Mhz
   // dec[1] = parseInt(str.substring(2,4),16);                               // Broadlink header 2: number of repeats
@@ -1673,7 +1716,7 @@ function getDecimalFromRaw(raw, freq) {
 function getBroadlink(str, type) {              // Converts Pronto string to Broadlink with type = 0x26 (IR) or 0xb2 (RF 433) or 0xd7 (RF 315)
   let dec = getRawFromPronto(str);
   let broadlink = [];
-  let unit = broadlinkUnit;                                                  // 32.84ms units, or 2^-15s ;
+  let unit = BRDLNK_UNIT;                                                 // 32.84ms units, or 2^-15s ;
   let tmp;
   broadlink[0] = type;                                                    // Broadlink header 1: 0x26=IR, 0xb2=RF 433KHz, 0xd7=RF 315MHz
   broadlink[1] = "00";                                                    // Broadlink header 2: number of repeats
@@ -1720,6 +1763,9 @@ function decToHex(str) {                        // Converts a decimal string to 
 	return hex.join(' ');
 }
 function buildRaw(header,one,zero,ptrail,gap,bin) {      // Generates Raw from Lirc command, returns command as string of decimals with ',' separators
+
+	// Note that there's no frequency involved here yet, as the value themselves contain the time codes to be emitted  
+
 	let str = [], raw = [];
 	str[0] = cleanHeader(zero);                      // Builds a small temp array to store zero and one strings,
 	str[1] = cleanHeader(one);                       // while cleaning separators in the three fields that have multiple values

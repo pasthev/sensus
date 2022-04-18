@@ -34,6 +34,13 @@ add your own protocols.
   * Allows to pre-set Repeat values
   * Allows to pre-set Signal type (IR / RF433 / RF315)
 
+Note that Broadlink random functions generate One-Hot sequences, mostly used for RF signals,
+while other random functions generate Nec sequences, usualy designed for IR signals.
+This should fit most use, but you can rely on the Convert functions if you need to swap these
+defaults, i.e.: 
+To get a random Broadlink IR (Nec) sequence, generate a random Raw, then convert to Broadlink.
+To get a random Pronto RF (One-Hot) sequence, generate a random Broadling, and convert to Pronto.
+
 ### IR/RF frames analysis
 * Frames decoding in detailled logged view
 * Identification of Nec5 and One-Hot encoded payloads
