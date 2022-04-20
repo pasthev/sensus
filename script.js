@@ -63,19 +63,89 @@ function ui_clear(fieldId) {               // Clears field with id string fieldI
 }
 function ui_copy(fieldId) {                // Copies string from field with id string fieldId to clipboard
 	cleanOnClick();
-	navigator.clipboard.writeText(document.getElementById(fieldId));
+	copyToClipboard(getField(fieldId));
 	// return false;
 }
-function ui_copyPrefixed(fieldId) {        // Copies string from field with id string fieldId to clipboard
+function ui_copyPrefixed(fieldId) {        // Copies string from field with id string fieldId to clipboard, adding prefix 'hex2send:'
 	cleanOnClick();
-	let jeedom = 'hex2send:' + getfield(fieldId);
-	navigator.clipboard.writeText(jeedom);
-	info(jeedom)
+	let jeedom = 'hex2send:' + getField(fieldId);
+	copyToClipboard(jeedom);
 	// return false;
+}
+function ui_copyLirc() {                   // Turns Commands into a Lirc txt, and copies it to clipboard
+	cleanOnClick();
+
+	let header = getField('cHeaderField');
+	let one = getField('cOneField');
+	let zero = getField('cZeroField');
+	let ptrail = getField('cPtrailField');
+	let gap = getField('cGapField');
+	let pre = getField('cPreField');
+	let freq = getField('cFreqField');
+	let lircCommand = getField('cCommandField');
+	
+	if (lircCommand == '') {
+		shortToCommand();
+		lircCommand = getField('cCommandField');
+	}
+
+
+	let lirc = ``;	
+	
+	lirc += `begin remote\n`
+	lirc += `   name	Sensus-generated Lirc file  # https://pasthev.github.io/sensus/\n`
+	lirc += `   bits	16\n`
+	lirc += `   flags	SPACE_ENC|CONST_LENGTH\n`
+	lirc += `   eps	30\n`
+	lirc += `   aeps	100\n`
+	lirc += `   header	${header}\n`
+	lirc += `   one	${one}\n`
+	lirc += `   zero	${zero}\n`
+	lirc += `   ptrail	${ptrail}\n`
+	lirc += `   pre_data_bits   16\n`
+	lirc += `   pre_data	0x${pre}\n`
+	lirc += `   gap	${gap}\n`
+	lirc += `   toggle_bit_mask	0x0\n`
+	lirc += `   frequency ${freq}\n`
+	lirc += `\n`
+	lirc += `   begin codes\n`
+	lirc += `      KEY_MAIN	0x${lircCommand}\n`
+	lirc += `	end codes\n`
+	lirc += `end remote\n`
+
+	copyToClipboard(lirc);
+	write('Lirc file copied to clipboard, ready to be pasted into a new text file.')
+	// return false;
+}
+
+
+function copyToClipboard(string) {         // _Copies %string to clipboard
+
+	if (!string) {return};
+	if (!navigator.clipboard) {
+		message('Can not copy to clipboard');
+		return
+	}
+
+	navigator.clipboard
+	.writeText(string)
+	.then( () => { info('Copied to clipboard: ' + string) } )
+	.catch( () => { message('Failed to copy') } );
+	
 }
 function ui_paste(fieldId) {               // Pastes clipboard to field with id string fieldId
+
 	cleanOnClick();
-	navigator.clipboard.readText().then(clipText => document.getElementById(fieldId).innerText = clipText);
+
+	if (!navigator.clipboard) {
+		message('Can not paste from clipboard');
+		return
+	}
+	let string;
+	navigator.clipboard
+	.readText()
+	.then( clipText => setField(fieldId, clipText));
+
 	// return false;
 }
 function formatShort(str, space, plus) {   // Formats a string, adding space every %space, and + every %plus position i.e. 'a55a 9a65 + a55a 40bf'
