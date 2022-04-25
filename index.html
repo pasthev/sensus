@@ -7,6 +7,12 @@
 </head>
 <body>
 
+	<datalist id="defaultFreqs">
+		<option value="36045">
+		<option value="38029">
+		<option value="40244">
+	</datalist>
+
 <!----------------------------------------------------------------------------------------------------------------------------->
 <!-- Top toolbar section -->
 <!----------------------------------------------------------------------------------------------------------------------------->
@@ -32,6 +38,9 @@
 			<input id="bfAnalyse" type="submit" class="miniB" formaction="javascript: ui_formToggle('fAnalyse')" value="⚙" style="margin: 0 3px"/>
 		</form>
 	</div>		
+	<div class="theme-container color-bg">
+		<h3><a href="https://github.com/pasthev/sensus" target="_blank">github.com/pasthev/sensus</a></h3>
+	</div>		
 	<h1 style="cursor: pointer" onclick="info('« non verbum e verbo sed sensum de sensu »')">Sensus IR & RF Code Converter</h1>
 	<br>
 
@@ -45,29 +54,29 @@
 		<div>
 			<div class="col-25">
 				<label for="cHeaderField"><h2>♔ Commands</h2></label>
-				<input type="transparent" id="cFreqField" style="width: 70px; "placeholder="00000"></input>
+				<input type="number" min="63" max="4145146" id="cFreqField" style="width: 100px" placeholder="00000" list="defaultFreqs"></input>
 				<label for="cFreqField">Hz</label>
 			</div>
 			<div class="col-75">
 				<label for="cShortField">Short (hex):</label>
-				<input type="transparent" id="cShortField" style="width: 28%; "placeholder="A51A"></input>
+				<input type="transparent" id="cShortField" style="width: 230px; "placeholder="A51A"></input>
 				<input name="bCommToConv" type="submit" class="small" style="width: 40px;" formaction="javascript: ui_shortToCommand()" value="⮞"/>
 				&nbsp
 				<input name="bConvToComm" type="submit" class="small" style="width: 40px;" formaction="javascript: ui_commandToShort()" value="⮜"/>
-				<input type="transparent" id="cCommandField" style="width: 38%; "placeholder="A55A58A7"></input>
-				<label for="cCommandField" >&nbsp:Command</label>
+				<label for="cCommandField" >&nbsp Command (hex):</label>
+				<input type="transparent" id="cCommandField" style="width: 354px; "placeholder="A55A58A7"></input>
 				</br>
 				<label for="cHeaderField">Header:</label>
 				<input type="transparent" id="cHeaderField" style="width: 100px; "placeholder="8548  4125"></input>
-				<label for="">One:</label>
+				<label for="">&nbsp One:</label>
 				<input type="transparent" id="cOneField" style="width: 100px; "placeholder="522  1615"></input>
-				<label for="cZeroField">Zero:</label>
+				<label for="cZeroField">&nbsp Zero:</label>
 				<input type="transparent" id="cZeroField" style="width: 100px; "placeholder="522   547"></input>
-				<label for="cPtrailField">Ptrail:</label>
+				<label for="cPtrailField">&nbsp Ptrail:</label>
 				<input type="transparent" id="cPtrailField" style="width: 70px; "placeholder="522"></input>
-				<label for="cGapField">Gap:</label>
+				<label for="cGapField">&nbsp Gap:</label>
 				<input type="transparent" id="cGapField" style="width: 70px; "placeholder="25817"></input>
-				<label for="cPreField">Pre Data:</label>
+				<label for="cPreField">&nbsp Pre Data:</label>
 				<input type="transparent" id="cPreField" style="width: 70px; "placeholder="0xA55A"></input>
 			</div>
 
@@ -104,10 +113,10 @@
 				<div class="col-25">
 					<label for="prontoField"><h2>♕ Pronto data</h2></label>
 					<fieldset class="fieldset2 color-b4">
-						<input type="transparent" id="freqFieldPronto" style="width: 70px; "placeholder="00000"></input>
+						<input type="number" min="63" max="4145146" id="freqFieldPronto" style="width: 100px" placeholder="00000" list="defaultFreqs"></input>
 						<span">Hz</span>
-						<input name="readPrFreq" type="submit" class="small" formaction="javascript: ui_freqRead('Pronto')" value="⮐ read"/>
 						<input name="wrtePrFreq" type="submit" class="small" formaction="javascript: ui_freqSet('Pronto')" value="set ⮑"/>
+						<input name="readPrFreq" type="submit" class="small" formaction="javascript: ui_freqRead('Pronto')" value="⮐ read"/>
 					</fieldset>
 				</div>
 				<div class="col-75">
@@ -136,10 +145,10 @@
 				<div class="col-25">
 					<label for="decimalField"><h2>♙ Decimal</h2></label>
 					<fieldset class="fieldset2 color-c4">
-						<input type="transparent" id="freqFieldDecimal" style="width: 70px; "placeholder="00000"></input>
+						<input type="number" min="63" max="4145146" id="freqFieldDecimal" style="width: 100px" placeholder="00000" list="defaultFreqs"></input>
 						<span>Hz</span>
-						<input name="readPrFreq" type="submit" class="small" formaction="javascript: ui_freqRead('Decimal')" value="⮐ read"/>
 						<input name="wrtePrFreq" type="submit" class="small" formaction="javascript: ui_freqSet('Decimal')" value="set ⮑"/>
+						<input name="readPrFreq" type="submit" class="small" formaction="javascript: ui_freqRead('Decimal')" value="⮐ read"/>
 					</fieldset>
 				</div>
 				<div class="col-75">
@@ -168,10 +177,10 @@
 				<div class="col-25">
 					<label for="rawField"><h2>♖ Raw</h2></label>
 					<fieldset class="fieldset2 color-a4">
-						<input type="transparent" id="freqFieldRaw" style="width: 70px; "placeholder="00000"></input>
+						<input type="number" min="63" max="4145146" id="freqFieldRaw" style="width: 100px" placeholder="00000" list="defaultFreqs"></input>
 						<span">Hz</span>
-						<input name="readPrFreq" type="submit" class="small" formaction="javascript: ui_freqRead('Raw')" value="⮐ read"/>
 						<input name="wrtePrFreq" type="submit" class="small" formaction="javascript: ui_freqSet('Raw')" value="set ⮑"/>
+						<input name="readPrFreq" type="submit" class="small" formaction="javascript: ui_freqRead('Raw')" value="⮐ read"/>
 					</fieldset>
 				</div>
 				<div class="col-75">
@@ -201,9 +210,9 @@
 					<label for="broadlinkField"><h2>♗ Broadlink Hex</h2></label>
 					<fieldset class="fieldset2  color-b4">
 						<span">Repeats:</span>
-						<input type="transparent" id="hexRepeats" placeholder="255"></input>
-						<input name="hexRepRefr" type="submit" class="small" formaction="javascript: ui_hexReadRepeats()" value="⮐ read"/>
+						<input type="number" min="0" max="255" id="hexRepeats" style="width: 62px" placeholder="255"></input>
 						<input name="hexRepdef" type="submit" class="small" formaction="javascript: ui_hexSetRepeats()" value="set ⮑"/>
+						<input name="hexRepRefr" type="submit" class="small" formaction="javascript: ui_hexReadRepeats()" value="⮐ read"/>
 					</fieldset>
 				</div>
 				<div class="col-75">
@@ -245,9 +254,9 @@
 					<label for="broadB64Field"><h2>♘ Broadlink B64</h2></label>
 					<fieldset class="fieldset2 color-c4">
 						<span>Repeats:</span>
-						<input type="transparent" id="b64Repeats" placeholder="255"></input>
-						<input name="b64RepRefr" type="submit" class="small" formaction="javascript: ui_b64ReadRepeats()" value="⮐ read"/>
+						<input type="number" min="0" max="255" id="b64Repeats" style="width: 62px" placeholder="255"></input>
 						<input name="b64Repdef" type="submit" class="small" formaction="javascript: ui_b64SetRepeats()" value="set ⮑"/>
+						<input name="b64RepRefr" type="submit" class="small" formaction="javascript: ui_b64ReadRepeats()" value="⮐ read"/>
 					</fieldset>
 				</div>
 				<div class="col-75">
@@ -287,9 +296,9 @@
 					<label for="testField"><h2>⚙ Raw analysis</h2></label>
 					<fieldset class="fieldset2 color-a4">
 						<span">Head. len:</span>
-						<input type="transparent" id="headerLength" placeholder="2" value="2"></input>
+						<input type="number" min="0" max="99" id="headerLength" style="width: 62px" placeholder="2" value="2"></input>
 						<span>Trailer len:</span>
-						<input type="transparent" id="trailerLength" placeholder="1" value="1"></input>
+						<input type="number" min="0" max="99" id="trailerLength" style="width: 58px" placeholder="1" value="1"></input>
 						<input name="headTraildefault" type="submit" class="small" formaction="javascript: ui_headTrailReset(2,1)" value="default"/>
 						<input name="headTrailReset" type="submit" class="small" formaction="javascript: ui_headTrailReset(0,0)" value="reset"/>
 					</fieldset>

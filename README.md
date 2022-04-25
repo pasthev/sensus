@@ -56,3 +56,9 @@ and the code should be documented enough for anyone to easily add components of 
 as well as new buttons to the Raw analysis interface when needed.
  
 Both the Js, css and html code can certainly be improved. Happy to learn, so, forks welcome.
+
+## Notes
+* Changing frequency in Pronto and Decimal panels only changes frequency info packet and not actual payload values:
+  * this is intended, since both changing frequency and converting timecodes in payload would lead to the exact same result as changing nothing - same spirit as 2x(14 days) = 4x(1 week). For this reason, the only place where changing frequency will actually lead to a payload conversion is the Raw panel.
+* Some values are slightly changed during conversion or frequency set. I.e. setting Header as "2512, 5520" ir Commands panel, then converting to and back from Pronto results in Header becoming "2524, 5522"
+  * this is intended, and due to the way values have to be stored in the various formats. In the example above, the converted "2524, 5522" header will remain stable no matter which format it is converted to.

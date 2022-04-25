@@ -112,6 +112,22 @@ h2 {
   margin: 0 0;
 
 }
+h3 {                                        /* Right column width, and mostly text for input field labels on the left */
+  color: var(--col-h1);
+  font-family: Verdana, Tahoma, sans-serif;
+  font-weight: lighter;
+  font-size: small;
+  float: center;
+  width: 85%;
+  margin: 7px 22px;
+
+  text-shadow: 1px 1px 1px var(--col-s1);
+}
+a {
+  color: var(--col-h1);
+  font-style: normal;
+  text-decoration: none;
+}
 
 .container {                                     /* Container for each main categories form */
   /* border:2px solid var(--col-a1); */
@@ -173,7 +189,7 @@ textarea {
   box-sizing: border-box;
 }
 
-input[type="transparent"] {                     /* Small text areas for Commands and Hertz or Repeat values on the left side */
+input[type="transparent"], input[type="number"] {                     /* Small text areas for Commands and Hertz or Repeat values on the left side */
   background-color: var(--col-fb);
   color: var(--col-ft);
   border: 1px solid var(--col-sh);
@@ -294,7 +310,7 @@ input.minib {
   padding: 5px 5px;
   margin: 0;
   font-size: 1em;
-  width: 128px;
+  width: 135px;
 }
 .command {                                       /* Forms background color per section */
   background-color: var(--col-a3);

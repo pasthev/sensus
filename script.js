@@ -1,12 +1,7 @@
 // « non verbum e verbo sed sensum de sensu »
+// https://github.com/pasthev/sensus
 
 /* Todo:
-			- handle <Return> keypresses
-			- copy button in Commands panel does nothing yet -> copy as Lirc txt file ?
-			- return false from all ui_ functions (in case form would be used in an iframe, i.e. in Google Sites)
-			- search hardcoded "var freq = 38029"
-			- freqSetLirc to cleanup, 
-			- *Setting Decimal frequency only changes freq byte, not values !
 			- All '// return false;' at the end of ui_ functions to be deleted / corrected (was initially meant for Google Sites embedding)
  */
 
@@ -21,6 +16,16 @@ const activeDebug = false
  
 
 // Interface functions --------------------------------------------------------------------------------------------------->	
+
+function search(e){
+
+	// https://stackoverflow.com/questions/20998541/get-the-value-of-input-text-when-enter-key-pressed
+	
+	if (e.which === 13) {info('coucou'); return;};
+	let unicode= e.which;
+	info(unicode + ' / ' + e);
+  
+}
 
 function setField(name, val) {             // Fills textarea named 'name' with 'val'
 	if (typeof val === 'undefined') {
@@ -75,50 +80,61 @@ function ui_copyPrefixed(fieldId) {        // Copies string from field with id s
 function ui_copyLirc() {                   // Turns Commands into a Lirc txt, and copies it to clipboard
 	cleanOnClick();
 
-	let header = getField('cHeaderField');
-	let one = getField('cOneField');
-	let zero = getField('cZeroField');
-	let ptrail = getField('cPtrailField');
-	let gap = getField('cGapField');
-	let pre = getField('cPreField');
+	let header = cleanStringSeps(getField('cHeaderField'), ' ');
+	let one = cleanStringSeps(getField('cOneField'), ' ');
+	let zero = cleanStringSeps(getField('cZeroField'), ' ');
+	let ptrail = cleanStringSeps(getField('cPtrailField'), ' ');
+	let gap = cleanStringSeps(getField('cGapField'), ' ');
+	let pre = cleanStringSeps(getField('cPreField'), '');
+	let preBits = 0;
 	let freq = getField('cFreqField');
-	let lircCommand = getField('cCommandField');
-	
+	let lircCommand = stripHex(getField('cCommandField'),0);
+	let bits = Math.ceil(lircCommand.length / 2) * 8;
+
 	if (lircCommand == '') {
 		shortToCommand();
 		lircCommand = getField('cCommandField');
 	}
 
+	if (!one || !zero || !lircCommand) {
+		message('Need at least Command or Short, as well as Zero and One values to generate Lirc');
+		return
+	}
+
+	if (pre) {                                                             // Pre value usually is stored in hex, with 0x prefix
+		let preVal = parseInt(pre);                                        // in case Pre would have been typed in decimal
+		preVal = isNaN(preVal) ? parseInt(pre,16) : preVal;                // if above failed, tries direct Hex in case 0x would be missing in field
+		pre = isNaN(preVal) ? '' : '0x' + hexPairPad(preVal);              // Converts to 0x-prefixed hex string or empty string
+		preBits = isNaN(preVal) ? 0 : Math.ceil(pre.length / 2) * 8 - 8;   // pre length - 0x
+	}
 
 	let lirc = ``;	
-	
 	lirc += `begin remote\n`
-	lirc += `   name	Sensus-generated Lirc file  # https://pasthev.github.io/sensus/\n`
-	lirc += `   bits	16\n`
-	lirc += `   flags	SPACE_ENC|CONST_LENGTH\n`
-	lirc += `   eps	30\n`
-	lirc += `   aeps	100\n`
-	lirc += `   header	${header}\n`
-	lirc += `   one	${one}\n`
-	lirc += `   zero	${zero}\n`
-	lirc += `   ptrail	${ptrail}\n`
-	lirc += `   pre_data_bits   16\n`
-	lirc += `   pre_data	0x${pre}\n`
-	lirc += `   gap	${gap}\n`
-	lirc += `   toggle_bit_mask	0x0\n`
-	lirc += `   frequency ${freq}\n`
+	lirc += `   name             Sensus-generated Lirc file  # https://pasthev.github.io/sensus/\n`
+	lirc += `   bits             ${bits}\n`
+	lirc += `   flags            SPACE_ENC|CONST_LENGTH\n`
+	lirc += `   eps              30\n`
+	lirc += `   aeps             100\n`
+	lirc += `   header           ${header}\n`
+	lirc += `   one              ${one}\n`
+	lirc += `   zero             ${zero}\n`
+	lirc += `   ptrail           ${ptrail}\n`
+	lirc += `   pre_data_bits    ${preBits}\n`
+	lirc += `   pre_data         ${pre}\n`
+	lirc += `   gap              ${gap}\n`
+	lirc += `   toggle_bit_mask  0x0\n`
+	lirc += `   frequency        ${freq}\n`
 	lirc += `\n`
 	lirc += `   begin codes\n`
-	lirc += `      KEY_MAIN	0x${lircCommand}\n`
-	lirc += `	end codes\n`
+	lirc += `      KEY_MAIN      0x${lircCommand}\n`
+	lirc += `   end codes\n`
 	lirc += `end remote\n`
 
 	copyToClipboard(lirc);
-	write('Lirc file copied to clipboard, ready to be pasted into a new text file.')
+	output += 'Lirc file copied to clipboard, ready to be pasted into a new text file:\n\n' + lirc;
+	write(output);
 	// return false;
 }
-
-
 function copyToClipboard(string) {         // _Copies %string to clipboard
 
 	if (!string) {return};
@@ -235,7 +251,7 @@ function popup(text, colCSSname){       // _Generates the popup window for messa
 	let div=document.createElement('div')
 
 	let len = text.length;
-	if (len > 79) {
+	if (len > 99) {
 		text = text.slice(0,79) + '…'
 	}
 
@@ -281,7 +297,7 @@ function refreshAll(includeComm) {      // Triggers refreshes on all Frenquency 
 		message('See Raw analysis panel for conversion logs')
 	}
 }
-function write(text){                  // Sends text message to Raw Analysis field
+function write(text){                   // Sends text message to Raw Analysis field
 	setField('testField', text);
 }
 
@@ -561,10 +577,12 @@ function readRaw() {                                        // * Main Raw analys
 
 	//let pTrail = checkPtrail(str, seqStart);                          // Gets pTrail string or '' ***** can hardly be sure of pTrail, so, first proposal here ***
 
-	let seqQty = seqStart.length - 1;                                // Nombre de séquences
+	let seqQty = seqStart.length - 1;                                 // Nombre de séquences
 	let seq;
-	let binCommand = [];
-	let seqCommand = [];
+	let binCommand = [];                                              // These will store the different burst values that will be found
+	let seqCommand = [];                                              //
+	let burstCommand = [];                                            //
+	let burstShort = [];                                              //
 	let lastType, lastBin, lastHex, lastShort;
 	let lastShiftL = 0, lastShiftR = 0, lastCommand = '';
 
@@ -594,17 +612,20 @@ function readRaw() {                                        // * Main Raw analys
 			lastShiftL = sequence.shiftL;                                     //  so let's store the last good values that have been read here
 			lastShiftR = sequence.shiftR;                                     //  in case the last sequence that will be read would return an empty object
 			lastBin = sequence.bin;                                           // 
-			lastHex = sequence.hex;                                           // 
-			lastShort = sequence.short;                                       // 
+			lastHex = formatShort(sequence.hex, 4, 8);                        // 
+			lastShort = formatShort(sequence.short, 0, 4);                    // 
 			lastCommand = seqCommand[i];                                      // Also stores identified rough hex commands[]
 			lastPtrail = str.at(-1 - trailerLength);
+
+			burstCommand[i] = lastHex;                                        // Stores found hex and shorts in arrays
+			if (lastShort) {burstShort[i] = lastShort};                       // to avoid cases where formatShort would generate a ' ' false positive
 
 			output += '> ' + lastType + ' encoding detected ';                // Outputs type (One-Hot or Nec)
 			output += ' with shift value: '                                   // Outputs left & right shifts used,
 			output += lastShiftL + '/' + lastShiftR ;                         //  in order to correct header / trailer Lengths
 			output += ' *' + formatShort(lastBin, 8, 16) + '* ';              // Outputs decoded bibits binary values                  
-			output += '- hex: *** ' + formatShort(lastHex, 0, 4) + ' *** ';   // Outputs the hex (Lirc) command, i.e. *** a55a + 58a7 ***
-			output += '- short: <' + formatShort(lastShort, 0, 4) + '> ';     // Outputs the short command, i.e. <A51A>, or <>
+			output += '- hex: *** ' + lastHex + ' *** ';                      // Outputs the hex (Lirc) command, i.e. *** a55a + 58a7 ***
+			output += '- short: < ' + lastShort + ' > ';                      // Outputs the short command, i.e. <A51A>, or <>
 			output += '\n';
 		} else {
 			output += 'No bi-bits encoding found. \n';                        // No bibits. :(
@@ -650,20 +671,27 @@ function readRaw() {                                        // * Main Raw analys
 	// * Reports to log window -----------------------------------------------------------------------------------------------------
 
 	let prefix = '';
-	if (flag) {
-		prefix += 'Multiple commands identified. ' + lastType + ' command from last sequence: ';
-		prefix += '\n' + seqCommand.join('\n');
-	} else {
-		prefix += 'Unique ' + lastType + ' command identified: ';
+
+	if (burstCommand.length) {
+		lastCommand = burstCommand.join(' + ');
+		prefix += lastCommand;
+		if (burstShort.length) {
+			lastShort = burstShort.join(' + ');
+			prefix += ' - Short: ' + lastShort;
+		} else {
+			prefix += ' (no short identified)';
+		}
+		prefix += '\n\n';
 	}
-		prefix += '<' + formatShort(lastCommand, 4, 8) + '>';
-	if (lastShort) {prefix += '. Short: *' + lastShort + '*'} else {prefix += ' (no short identified)'};
-		prefix += '\nHeader: ' + header.join(', ') + ' / Ptrail: ' + pTrail
+	if (flag) {
+		prefix += 'Multiple command bursts identified. '
+	} else {
+		prefix += 'Unique command burst identified. ';
+	}
+	prefix += '\nHeader: ' + header.join(', ') + ' / Ptrail: ' + pTrail
 	if (lastShiftR > 1) {prefix += 'invalid (multiple values)'}
 	if (lastShiftR < 1) {prefix += 'none'}
-
 	prefix += ' / Gap: ' + gap
-
 	prefix += ' / Full analysis below.';
 	output = prefix + '\n\n' + output;
 
@@ -672,8 +700,8 @@ function readRaw() {                                        // * Main Raw analys
 	if (sequence.type != '') {                                            // Bibits! :)
 		setField('cOneField', oneString);                                   // Injects Lirc values in Commands form
 		setField('cZeroField', zeroString);
-		setField('cCommandField', formatShort(lastCommand, 4, 8));
-		setField('cShortField', formatShort(lastShort, 0, 4));
+		setField('cCommandField', lastCommand);
+		setField('cShortField', lastShort);
 		setField('cGapField', gap); 
 		setField('cHeaderField', header.join(', '));
 		setField('headerLength', headerLength);
@@ -1046,15 +1074,15 @@ function buildRandom(hexLen, type) {               // Generates a random sequenc
 	output += `Header: ${header} One: ${one} Zero: ${zero} Ptrail: ${ptrail} Gap: ${gap} Bin command: ${bin}\n`
 	let raw = buildRaw(header,one,zero,ptrail.toString(),gap.toString(),bin);
 
-	return {                        // Returns an object - Sample values:
-		'raw': raw,                 // '8546, 4128, 526, 1604, 526, 552, 526, 1604, 526, 552, [...] 1604, 526, 1604, 526, 1604, 526, 25822'
-		'command': command,
-		'short': short,
-		'header': header,           // '8548, 4125'
-		'one': one,                 // '522 1615'
-		'zero': zero,               // '522 547'
-		'ptrail': ptrail,           // '522'
-		'gap': gap,                 // '25817'
+	return {                                      // Returns an object - Sample values:
+		'raw': raw,                               // '8546, 4128, 526, 1604, 526, 552, 526, 1604, 526, 552, [...] 1604, 526, 1604, 526, 1604, 526, 25822'
+		'command': formatShort(command, 4, 8),    // '906f d629 + 54ab 7c83'
+		'short': formatShort(short, 2, 4),        // '09 6b + 2a 3e'
+		'header': header,                         // '8548, 4125'
+		'one': one,                               // '522 1615'
+		'zero': zero,                             // '522 547'
+		'ptrail': ptrail,                         // '522'
+		'gap': gap,                               // '25817'
 	};
 }
 function getRandomInt(max) {
@@ -1089,15 +1117,6 @@ function ui_acme(category) {            // Fills "Category" data with test value
 }
 function acmeCommands() {               // Fills Commands data with test values
 	
-	/*setField('cShortField', 'A51A');
-	setField('cCommandField', '');
-	setField('cPreField', '');
-	setField('cHeaderField', '8548, 4125');
-	setField('cOneField', '522; 1615');
-	setField('cZeroField', '522; 547');
-	setField('cPtrailField', '522');
-	setField('cGapField', '25817'); */
-
 	let random = buildRandom(0, NEC);	              // length = random / type = 'Nec' (using constant)
 	setField('cShortField', random.short);
 	setField('cCommandField', random.command);
@@ -1672,7 +1691,6 @@ function getShortFromCommand(hex, opt) {                        // Tries to conv
 	let err2 = ' (partial conversion)';
 
 	hex = stripHex(hex, 4);                                    // Removes spaces and + signs ; min length set to 4
-
 	if (hex != '') {
 		setField('cCommandField', formatShort(hex, 4, 8));
 		let short = '';                                       //
@@ -1695,7 +1713,8 @@ function getShortFromCommand(hex, opt) {                        // Tries to conv
 // Conversion subfunctions --------------------------------------------------------------------------------------------------->	
 function stripHex(string, min) {                           // Strips a string to its hex content, adds %min padding, returns string or ''
 
-	string = string.replace(/[+,;\s/-/"0x"]|/g, '');           // Removes 'Ox", +,;- and all white space signs
+	string = string.replace(/[+,;\s/-]|/g, '');           // Removes 'Ox, +,;- and all white space signs
+	string = string.replace("0x", "");
 	if (/^([0-9A-Fa-f/)]+)$/.test(string)) {
 		if (string.length < min) {
 			string = string.padStart(min,'0');
@@ -1837,9 +1856,9 @@ function buildRaw(header,one,zero,ptrail,gap,bin) {      // Generates Raw from L
 	// Note that there's no frequency involved here yet, as the value themselves contain the time codes to be emitted  
 
 	let str = [], raw = [];
-	str[0] = cleanHeader(zero);                      // Builds a small temp array to store zero and one strings,
-	str[1] = cleanHeader(one);                       // while cleaning separators in the three fields that have multiple values
-	header = cleanHeader(header);                    //
+	str[0] = cleanStringSeps(zero, ',');                      // Builds a small temp array to store zero and one strings,
+	str[1] = cleanStringSeps(one, ',');                       // while cleaning separators in the three fields that have multiple values
+	header = cleanStringSeps(header, ',');                    //
 	
 	if (header) {raw.push(header)};
 
@@ -1858,9 +1877,13 @@ function buildRaw(header,one,zero,ptrail,gap,bin) {      // Generates Raw from L
 
 	return raw.join(',');
 }
-function cleanHeader(str) {
-	str = str.replace(/[ ;\+\-]/g, ',');                      // Replaces spaces, ; + or - with commas if any
-	str = str.replace(/(\,){2,}/g, '$1');                     // Replaces multiple ",,," with single "," separator
+function cleanStringSeps(str, sep) {                     // Cleans possible values separators and spaces in %str to replace these with unique %sep
+
+	// might really be improved, but does the job
+
+	str = str.replace(/[\s;\+\-]/g, ',');                      // Replaces spaces, ; + or - with ',' if any
+	str = str.replace(/(\,){2,}/g, '$1');                     // Replaces multiple ',,,' with single ',' separator
+	str = str.replace(/\,/g, sep);                            // Replaces multiple ',' with %sep
 	return str;
 }
 function necPair(hex) {                                  // Converts one pair of Pioneer hex code to Pronto header i.e. 'A559' to 'a55a 9a65'
@@ -1926,7 +1949,12 @@ function hexTobin(hex) {                                 // Converts hex string 
 		hex = hex.substring(0,hex.length - 4);
 	}
 	return bin;
-}  
+}
+function hexPairPad(val) {                               // Converts a decimal to hex, adding 0 padding to get paired representation
+	let hex = val.toString(16);
+	if (hex.length %2) {hex = '0' + hex};
+	return hex;
+}
 
-// Can be deleted ------------------------------------------------------->
+// Below can be deleted ------------------------------------------------------->
 
