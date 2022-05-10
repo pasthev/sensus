@@ -407,7 +407,7 @@ function stringType(str) {                                           //  _Tells 
 	
 	if (!str.replace(/ /g, '')) {return 'empty string'};
 
-	let cln = str.replace(/[L ;,.()\+\-]/g, '');            // test string after removing ' L;,()+-' chars
+	let cln = str.replace(/[L ;,.()\+\-\r\n]/g, '');            // test string after removing ' L;,()+-' chars
 
 	if (/^[0-1]+$/.test(cln)) {                            // Case binary
 		return {                    // Returns an object - Sample values:
@@ -418,7 +418,7 @@ function stringType(str) {                                           //  _Tells 
 	}
 
 
-	if (/^\d+$/.test(cln)) {                               // Case hexadecimal (\d is exactly equivalent to [0-9] in js)
+	if (/^\d+$/.test(cln)) {                               // Case decimal (\d is exactly equivalent to [0-9] in js)
 		cln = str.replace(/[L ;()\+]/g, '')
 		return {                                // Returns an object - Sample values:
 			'type': 'decimal',                  // 'decimal'
@@ -1127,7 +1127,7 @@ function acmeCommands() {               // Fills Commands data with test values
 	setField('cPtrailField', random.ptrail);
 	setField('cGapField', random.gap);
 	let freq = parseInt(getField('cFreqField'));      // Frequency verification
-	if (!checkFreqInput(freq, true)) {                // if Command Freq field is empty or user has typed a wrong value,
+	if (!checkFreqInput(freq, false)) {                // if Command Freq field is empty or user has typed a wrong value,
 		setField('cFreqField', FREQ38);               //   defaults to 38 KHz
 	}                                                 //
 }
@@ -1199,7 +1199,7 @@ function acmeBroadGen(sigType, repeats) {              // _Generates random Broa
 	let freq = FREQ38;                                             // arbitrary, as we don't really care here since Broadlink won't store freq value
 	let pronto = getProntoFromRaw(raw, freq);
 	let broadlinkHex = getBroadlink(pronto, sigType).join('');
-	if (checkRepeatsInput(repeats)) {
+	if (checkRepeatsInput(repeats, false)) {
 		broadlinkHex = setHexRepeats(broadlinkHex, repeats);
 	}
 
@@ -1229,7 +1229,7 @@ function ui_freq(button) {                      // Frequency buttons in Commands
 			setField('cFreqField', FREQ40);
     }
 }
-function checkFreqInput(freq, warn) {
+function checkFreqInput(freq, warn) {           // Check frequency %freq, and throws a warning if invalid and %warn = true
 	if (freq > 63 && freq < 4145146) { return true };
 	if (warn) {message("Frequency must be between 63 Hz and 4145146 Hz")};
 	return false;
@@ -1455,7 +1455,7 @@ function ui_hexSetRepeats() {                        // ** Main- Change Broadlin
 	let hex = getField('broadlinkField');
 	let repeats = parseInt(getField('hexRepeats'));
 	
-	if (checkRepeatsInput(repeats)) {
+	if (checkRepeatsInput(repeats, true)) {
 		setField('broadlinkField', setHexRepeats(hex,repeats));
 	}
 	setFocus('hexRepeats');
@@ -1468,7 +1468,7 @@ function ui_b64SetRepeats() {                        // ** Main- Change Broadlin
 	let b64 = getField('broadB64Field');
 	let repeats = parseInt(getField('b64Repeats'));
 	
-	if (checkRepeatsInput(repeats)) {
+	if (checkRepeatsInput(repeats, true)) {
 		let newHex = setHexRepeats(base64ToHex(b64),repeats);
 		setField('broadB64Field', hexToBase64(newHex));
 	}
@@ -1489,9 +1489,9 @@ function setHexRepeats(hex,vrepeats) {                      // _Sets number of r
 	let repeats = vrepeats.toString(16).padStart(2, '0');
 	return lstring + repeats + rstring;
 }
-function checkRepeatsInput(repeats) {                       // _sanity check on repeats value, returns true if OK
+function checkRepeatsInput(repeats, warn) {                 // _sanity check on repeats value, returns true if OK, else throws a warning if %warn = true
 	if (repeats >= 0 && repeats < 256) { return true };
-	message("Repeats value must be between 0 and 255");
+	if (warn) {message("Repeats value must be between 0 and 255")};
 	return false;
 }
 
@@ -1559,9 +1559,15 @@ function convertCodes() {                             // ** Main- Converts all f
 }
 function ui_convertPronto() {                         // Convert from Pronto button
 	cleanOnClick();
-	convertPronto(getField('prontoField'));
-	refreshAll(true);
-	setFocus('prontoField');
+	let pronto = getField('prontoField');
+	let obj = stringType(pronto);
+    if (obj.type != 'invalid') {                     //	Both 'binary', 'decimal', and 'hex' returned types can be hex, so, accept all but 'invalid' here
+		convertPronto(pronto);
+		refreshAll(true);
+		setFocus('prontoField');
+	} else {
+		message('Pronto string should contain only hexadecimal values, separated with spaces');
+	}
 	// return false;
 }
 function convertPronto(pronto) {                      // ** Main- Converts all fields from Pronto string value ***************
@@ -1575,10 +1581,16 @@ function convertPronto(pronto) {                      // ** Main- Converts all f
 }
 function ui_convertDecimal() {                        // Convert from decimal button
 	cleanOnClick();
-	convertDecimal(getField('decimalField'));
-	refreshAll(true);
-	setFocus('decimalField');
-	// return false;
+	let decimal = getField('decimalField');
+	let obj = stringType(decimal);
+    if (obj.type == 'decimal') {                     //	'binary' might also be accepted in theory, but decimal packet should include header, unlikely to be binary
+		convertDecimal(decimal);
+		refreshAll(true);
+		setFocus('decimalField');
+	} else {
+		message('Decimal string should contain only numbers, possibly with L markers and comma separators');
+	}
+// return false;
 }
 function convertDecimal(decimal) {                    // ** Main- Converts all fields from decimal string value **************
 
@@ -1592,9 +1604,15 @@ function convertDecimal(decimal) {                    // ** Main- Converts all f
 }
 function ui_convertRaw() {                            // Convert from Raw button
 	cleanOnClick();
-	convertRaw(getField('rawField'));
-	setFocus('rawField');
-	refreshAll(true);
+	let raw = getField('rawField');
+	let obj = stringType(raw);
+    if (obj.type == 'decimal') {                     //	'binary' might also be accepted in theory, but decimal packet should include header, unlikely to be binary
+		convertRaw(raw);
+		setFocus('rawField');
+		refreshAll(true);
+	} else {
+		message('Raw string should contain only numbers, with comma separators');
+	}
 	// return false;
 }
 function convertRaw(raw) {                            // ** Main- Converts all fields from Raw string value *****************
@@ -1620,9 +1638,15 @@ function convertRaw(raw) {                            // ** Main- Converts all f
 }
 function ui_convertBroadlink() {                      // Convert from Broadlink Hex button
 	cleanOnClick();
-	convertBroadlink(getField('broadlinkField'));
-	refreshAll(true);
-	setFocus('broadlinkField');
+	let broadlink = getField('broadlinkField');
+	let obj = stringType(broadlink);
+    if (obj.type != 'invalid') {                     //	Both 'binary', 'decimal', and 'hex' returned types can be hex, so, accept all but 'invalid' here
+		convertBroadlink(obj.cleaned);               // Using returned obj.cleaned here rather than broadlink allows to remove spaces and other ,.; etc.
+		refreshAll(true);
+		setFocus('broadlinkField');
+	} else {
+		message('Broadlink string should contain only hexadecimal characters');
+	}
 	// return false;
 }
 function convertBroadlink(broadlinkHex) {             // ** Main- Converts all fields from Broadlink string value ************
@@ -1647,7 +1671,16 @@ function convertBroadlink(broadlinkHex) {             // ** Main- Converts all f
 }
 function ui_convertB64() {                            // Convert from Broadlink B64 button
 	cleanOnClick();
-	convertB64(getField('broadB64Field'));
+	let b64 = getField('broadB64Field');
+	try {
+		window.atob(b64.replace(/[ \r\n]+$/, ""));
+	} catch(e) {
+		if (e.code === 5) {
+			message('Base 64 format not recognized in Broadlink B64 field');
+		}
+		return;
+	}
+	convertB64(b64);
 	refreshAll(true);
 	setFocus('broadB64Field');
 	// return false;
