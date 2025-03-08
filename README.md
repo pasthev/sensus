@@ -1,12 +1,11 @@
 # sensus IR & RF codes converter / analyzer for Lirc, Pronto, Broadlink, Tuya, & raw codes with Impulses visualization
 
 
-<div style="text-align: center;">
-  <a href="https://pasthev.github.io/sensus/" style="font-size: 2em; font-weight: bold; display: block; margin-top: 0.5em; margin-bottom: 0.5em;">☞ View & Use Sensus Online</a>
-</div>
+### ☞ [View & Use Sensus Online](https://pasthev.github.io/sensus/)
+
 
 <div style="text-align: center;">
-    <img src="screenshots/sensus_screenshot_03.jpg" width="600">
+    <a href="https://pasthev.github.io/sensus/"><img src="screenshots/sensus_screenshot_03.jpg" width="600"></a >
 </div>
 
 ---
