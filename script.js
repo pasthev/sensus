@@ -135,6 +135,25 @@ function ui_copyLirc() {                   // Turns Commands into a Lirc txt, an
 	write(output);
 	// return false;
 }
+function ui_presetValues() {			   // Prefills Command fields with most common IR values
+    const presetValues = [
+        "9000, 45000",  // Header
+        "562, 1688",    // One
+        "562, 563",     // Zero
+        "1688",         // Ptrail
+        "9000",         // Gap
+        ""      		// Pre Data
+    ];
+
+    document.getElementById('cHeaderField').value = presetValues[0];
+    document.getElementById('cOneField').value = presetValues[1];
+    document.getElementById('cZeroField').value = presetValues[2];
+    document.getElementById('cPtrailField').value = presetValues[3];
+    document.getElementById('cGapField').value = presetValues[4];
+    document.getElementById('cPreField').value = presetValues[5];
+
+    info("Preset values applied!");
+}
 function copyToClipboard(string) {         // _Copies %string to clipboard
 
 	if (!string) {return};
@@ -168,19 +187,19 @@ function formatShort(str, space, plus) {   // Formats a string, adding space eve
 	// let command = command.replace(/.{4}/g, '$& ');      // might exploit regEx, but boring with imbricated shifts
 
 	if (!str) {return ''};
-	let i, formated = '';
+	let i, formatted = '';
 	str = str.replace(/[+]| /g, '');                       //  i.e. 'A559+A502' to 'a55a 9a65 + a55a 40bf'
 	for (i in str) {
 		if (i > 0) {
 			if (plus && !(i % plus)) {                     // If i counter has reached a multiple of %plus
-				formated += ' + ';
+				formatted += ' + ';
 			} else if (space && !(i % space)) {            // If i counter has reached a multiple of %min
-				formated += ' ';				
+				formatted += ' ';				
 			}
 		}
-		formated += str.charAt(i);
+		formatted += str.charAt(i);
 	}
-	return formated;
+	return formatted;
 }
 
 // Top toolbars functions
@@ -301,11 +320,7 @@ function write(text){                   // Sends text message to Raw Analysis fi
 	setField('testField', text);
 }
 
-/* Raw Panel functions ***************************************************************************************************************************
-
-
-
-*/
+/* Raw Panel functions ****************************************************************************************************************************/
 
 // String Checks and repeats cleaning functions ---------------------------------------------------------------------------->	
 
@@ -714,6 +729,12 @@ function readRaw() {                                        // * Main Raw analys
 	// -----------------------------------------------------------------------------------------------------------------------------
 
 }
+function invertByte(byte) {
+    return (parseInt(byte, 16) ^ 0xFF).toString(16).padStart(2, '0');
+}
+function chunk(str, size) {
+    return str.match(new RegExp('.{1,' + size + '}', 'g'));
+}
 function searchBibits(rawBin) {                                      // _Searches %rawBin string for One-Hot or Nec sequence, shifting start if not multiple of 8
 
 /* For RC6, check http://www.pcbheaven.com/userpages/The_Philips_RC6_Protocol/index.php?topic=worklog&p=0
@@ -759,13 +780,29 @@ i
 	if (activeDebug) {output += activeDebug};
 
 	if (found != '') {
-		hex = parseInt(result, 2).toString(16);                    // i.e. hex = 53a58409
-		if (hex.length % 2) {hex = '0' + hex};                     // padStart simply based on length parity
+		//hex = parseInt(result, 2).toString(16);                    // i.e. hex = 53a58409
+		//if (hex.length % 2) {hex = '0' + hex};                     // padStart simply based on length parity
+        //hex = parseInt(result, 2).toString(16).padStart(Math.ceil(result.length / 4), '0');
+        hex = parseInt(result, 2).toString(16).padStart(result.length / 4, '0');
 		shift = len -i - result.length * 2;                        // Calculates Right shift, while left shift is i
 
-		if (found == 'Nec') {                                      // Only Nec type is worth searching for a search command,
-			short = getShortFromCommand(hex, false);               // since only Nec needs 0/1s to be equilibrated
-		}                                                          // short = '' if no short can be found
+
+        let bytes = chunk(hex, 2);
+        let isNec = (bytes.length === 4 && bytes[1] === invertByte(bytes[0]) && bytes[3] === invertByte(bytes[2]));
+        let isNecExtended = (bytes.length === 4 && bytes[3] === invertByte(bytes[2]) && bytes[1] !== invertByte(bytes[0]));
+
+        if (isNec || isNecExtended) {
+			//    short = bytes[0] + bytes[2];
+			short = getShortFromCommand(hex, false, isNecExtended);   // since only Nec needs 0/1s to be equilibrated
+            if (isNecExtended) found = 'Nec-Extended';
+         }
+
+
+
+
+		// if (found == 'Nec') {                                      // Only Nec type is worth searching for a search command,
+		//	short = getShortFromCommand(hex, false);               // since only Nec needs 0/1s to be equilibrated
+		// }                                                          // short = '' if no short can be found
 
 	} else {
 		return { 'type': '' };                                     // Returns an object with only one empty element
@@ -1106,6 +1143,8 @@ function ui_acme(category) {            // Fills "Category" data with test value
 			acmeDecimal(); break;
 		case 'Raw':
 			acmeRaw(); break;
+		case 'Tuya':
+			acmeTuya(); break;
 		case 'Broadlink':
 			acmeBroadlink(); break;
 		case 'BroadB64':
@@ -1163,6 +1202,7 @@ function acmeRaw() {                    // Fills Raw data with test value
 	setField('freqFieldRaw', FREQ38)
 	freqSetRaw();
 	write(output); output = '';
+	drawImpulses(trimFreqFromRaw(raw));
 	setFocus('rawField');
 }
 function acmeBroadlink() {              // Fills Broadlink data with test value
@@ -1214,6 +1254,14 @@ function acmeAnalysis() {               // Fills Analysis data with test values
 	setField('rawField', '9289, 6853, 275, 275, 549, 549, 275, 275, 549, 549, 275, 275, 549, 275, 518, 579, 244, 579, 244, 549, 275, 275, 549, 549, 275, 275, 549, 275, 549, 549, 275, 275, 549, 549, 275, 549, 275, 275, 549, 275, 549, 275, 518, 305, 549, 823, 275, 275, 518, 305, 518, 305, 518, 305, 518, 275, 549, 275, 549, 549, 275, 275, 549, 275, 549, 549, 275, 275, 9289, 6853, 275, 275, 518, 579, 275, 275, 549, 549, 244, 305, 518, 305, 518, 579, 244, 579, 244, 579, 244, 305, 518, 579, 244, 305, 518, 275, 549, 549, 275, 275, 549, 549, 275, 549, 275, 275, 549, 275, 549, 275, 549, 275, 549, 823, 244, 305, 518, 305, 518, 305, 518, 305, 518, 305, 518, 305, 518, 549, 275, 275, 549, 275, 549, 549, 275, 275, 9289, 6853, 275, 275, 549, 549, 275, 275, 518, 579, 275, 275, 518, 305, 518, 579, 244, 579, 244, 579, 244, 305, 518, 579, 244, 275, 549, 275, 549, 579, 244, 275, 549, 549, 275, 549, 275, 275, 549, 275, 549, 275, 549, 275, 549, 823, 275, 275, 549, 275, 518, 305, 549, 275, 518, 305, 549, 275, 518, 579, 244, 305, 518, 305, 518, 579, 244, 275, 9289, 6883, 244, 275, 549, 549, 275, 275, 549, 549, 275, 305, 518, 275, 549, 549, 275, 549, 275, 549, 275, 275, 549, 549, 275, 275, 549, 275, 518, 579, 275, 275, 549, 549, 244, 579, 244, 305, 518, 275, 549, 305, 518, 305, 518, 823, 275, 275, 549, 275, 549, 275, 549, 275, 549, 275, 549, 275, 549, 549, 244, 305, 518, 305, 518, 579, 244, 305, 9258, 6853, 275, 275, 549, 549, 275, 275, 549, 549, 275, 305, 518, 275, 549, 549, 275, 549, 275, 549, 275, 275, 549, 549, 244, 305, 549, 275, 518, 579, 244, 305, 518, 579, 244, 549, 275, 305, 518, 275, 549, 305, 518, 275, 549, 823, 275, 275, 549, 275, 549, 275, 549, 275, 549, 275, 549, 275, 549, 549, 275, 275, 549, 275, 518, 579, 244, 305, 9289, 6853, 244, 275, 549, 549, 275, 275, 549, 549, 275, 275, 549, 275, 518, 579, 275, 549, 244, 579, 275, 275, 518, 579, 244, 305, 518, 305, 518, 579, 244, 305, 518, 549, 275, 549, 275, 275, 549, 275, 549, 275, 549, 275, 549, 823, 244, 305, 549, 275, 549, 275, 518, 305, 518, 305, 549, 244, 549, 579, 244, 305, 518, 275, 549, 579, 244, 275, 9289, 6853, 275, 275, 549, 549, 275, 275, 549, 549, 275, 275, 549, 275, 549, 549, 244, 549, 275, 579, 244, 275, 549, 549, 275, 275, 549, 275, 549, 549, 275, 275, 549, 549, 275, 549, 275, 275, 549, 275, 549, 275, 518, 305, 549, 823, 244, 305, 549, 275, 518, 305, 518, 275, 549, 275, 549, 275, 549, 549, 275, 275, 549, 275, 549, 549, 275, 275, 9289, 6853, 275, 275, 518, 579, 244, 305, 518, 549, 275, 275, 549, 275, 549, 549, 275, 549, 275, 549, 275, 275, 549, 549, 275, 275, 549, 275, 549, 549, 275, 275, 549, 549, 244, 579, 244, 305, 518, 305, 518, 305, 518, 305, 518, 853, 244, 275, 549, 275, 549, 275, 549, 275, 549, 275, 549, 275, 549, 549, 244, 305, 518, 305, 549, 549, 244, 305, 9289, 6822, 275, 275, 549, 549, 275, 275, 549, 549, 275, 275, 549, 275, 549, 549, 275, 549, 244, 579, 244, 305, 518, 579, 244, 305, 518, 305, 518, 549, 275, 275, 549, 549, 275, 549, 275, 275, 549, 275, 549, 275, 549, 275, 549, 823, 275, 275, 549, 275, 518, 305, 518, 305, 518, 305, 518, 275, 549, 549, 275, 275, 549, 305, 518, 549, 275, 275, 9289, 6853, 244, 305, 549, 549, 244, 275, 549, 579, 244, 305, 518, 305, 518, 549, 275, 549, 275, 549, 275, 275, 549, 549, 275, 275, 549, 275, 549, 549, 275, 275, 549, 549, 244, 579, 244, 305, 518, 305, 518, 305, 518, 305, 518, 853, 244, 275, 549, 275, 549, 275, 549, 275, 549, 275, 549, 275, 549, 549, 244, 305, 518, 305, 549, 549, 244, 305, 9289');
 	setFocus('rawField');
 }
+function acmeTuya() {                 // Fills Tuya data with random value (actually a conversion from random raw)
+
+	let raw = buildRandom(0, NEC).raw;	                       // length = random / type = 'Nec' (using constant)
+	let tuya = getTuyaFromRaw(raw.split(',').map(Number));
+	setField('tuyaField', tuya);
+	write(output); output = '';
+	setFocus('tuyaField');
+}
 
 // Frequency functions --------------------------------------------------------------------------------------------------->	
 
@@ -1244,7 +1292,7 @@ function freqFromHz(dec) {                      // Returns encoded frequency fro
 }
 function freqFromDecimal(str, newFreq, raw) {   // Returns modified dec. str with newFreq; if newFreq=0, returns current freq or 0 if non valid
 												// raw is a flag: if true, won't throw an alert for missing header
-	// Partly dupped with freqFromPronto, could be optimized
+												// Partly dupped with freqFromPronto, could be optimized
 	
 	str = str.replace(/[L \+\-]/g, '');
 	let dec = str.trim().split(',').map(byte => parseInt(byte));  // Converts decimal string to array of decimal values
@@ -1476,20 +1524,20 @@ function ui_b64SetRepeats() {                        // ** Main- Change Broadlin
 
 	// return false;
 }
-function getHexRepeats(hex) {                               // _Returns number of repeats from a Hex sequence
+function getHexRepeats(hex) {                        // _Returns number of repeats from a Hex sequence
 	hex = hex.replace(/ /g, '');                  // Removes spaces if any
 	let repeats = hex.substring(2,4);             // Reads second pair of chars as text - Changed from js - was: hex.subst(2,2)
 	let decimal = parseInt(repeats,16);           // Converts Hex text string to decimal value 
 	return decimal;                               //
 }
-function setHexRepeats(hex,vrepeats) {                      // _Sets number of repeats in a Hex sequence
+function setHexRepeats(hex,vrepeats) {               // _Sets number of repeats in a Hex sequence
 	hex = hex.replace(/ /g, '');      // Removes spaces if any
 	let lstring = hex.substring(0,2);
 	let rstring = hex.slice(4);
 	let repeats = vrepeats.toString(16).padStart(2, '0');
 	return lstring + repeats + rstring;
 }
-function checkRepeatsInput(repeats, warn) {                 // _sanity check on repeats value, returns true if OK, else throws a warning if %warn = true
+function checkRepeatsInput(repeats, warn) {          // _sanity check on repeats value, returns true if OK, else throws a warning if %warn = true
 	if (repeats >= 0 && repeats < 256) { return true };
 	if (warn) {message("Repeats value must be between 0 and 255")};
 	return false;
@@ -1520,7 +1568,7 @@ function ui_commandToShort() {                       // Command ==> Short  small
 function commandToShort() {                           // ** Main- Command ==> Short function call **************************
 
 	let command = getField('cCommandField');
-	setField('cShortField', getShortFromCommand(command, true));
+	setField('cShortField', getShortFromCommand(command, true, false));
 
 }
 function ui_convertCodes() {                          // Convert from Codes button
@@ -1548,13 +1596,17 @@ function convertCodes() {                             // ** Main- Converts all f
 	if (one && zero && lircCommand) {
 		let bin = hexTobin(lircCommand);		
 		let raw = buildRaw(header,one,zero,ptrail,gap,bin);
-		setField('rawField', raw);		                           // Publish Raw without headers
+		setField('rawField', raw);		                        // Publish Raw without headers
 		if (freq) {
-			setField('freqFieldRaw', freq);                        // Temporarily fills Raw frequency field
-			convertRaw(getField('rawField'));
+			setField('freqFieldRaw', freq);                     // Temporarily fills Raw frequency field
+			convertRaw(getField('rawField'));					// Triggers all other conversions
+		} else {
+			setField('freqFieldRaw', '00000');                  // Resets Raw frequency field since Raw field contains raw only	
+			rawList = raw.split(',').map(item => item.trim());  // Converts string back to list and trims each element
+			setField('tuyaField', getTuyaFromRaw(rawList));		// Displays Tuya string as Tuya is Freq agnostic
+			setField('freqFieldTuya', FREQ38);                 	// Reminder about Tuya frequency
 		}
-		setField('freqFieldRaw', '00000');                         // Resets Raw frequency field since Raw field contains raw only
-		
+		drawImpulses(trimFreqFromRaw(raw));
 	}
 }
 function ui_convertPronto() {                         // Convert from Pronto button
@@ -1573,7 +1625,10 @@ function ui_convertPronto() {                         // Convert from Pronto but
 function convertPronto(pronto) {                      // ** Main- Converts all fields from Pronto string value ***************
 
 	setField('decimalField', hexToDec(pronto).join("L, ")+"L");
-	setField('rawField', getRawFromPronto(pronto).join(", "));
+	let raw = getRawFromPronto(pronto);
+	setField('rawField', raw.join(", "));
+	drawImpulses(trimFreqFromRaw(raw));
+	setField('tuyaField', getTuyaFromRaw(raw));
 	let broadlinkHex = getBroadlink(pronto, "26").join("");
 	setField('broadlinkField', broadlinkHex);
 	setField('broadB64Field', hexToBase64(broadlinkHex));
@@ -1596,7 +1651,11 @@ function convertDecimal(decimal) {                    // ** Main- Converts all f
 
 	let pronto = decToHex(decimal);
 	setField('prontoField', pronto);
-	setField('rawField', getRawFromPronto(pronto).join(", "));
+	let rawList = getRawFromPronto(pronto);
+	const raw = rawList.join(", ");
+	setField('rawField', raw);
+	drawImpulses(trimFreqFromRaw(raw));
+	setField('tuyaField', getTuyaFromRaw(rawList));
 	let broadlinkHex = getBroadlink(pronto, "26").join("");
 	setField('broadlinkField', broadlinkHex);
 	setField('broadB64Field', hexToBase64(broadlinkHex));
@@ -1620,7 +1679,7 @@ function convertRaw(raw) {                            // ** Main- Converts all f
 	let freq = freqFromDecimal(raw, 0, true)          // Checks if raw contains hard-coded frequency value (if not, 'freqFieldRaw' gets reset)
 	if (!checkFreqInput(freq, false)) {
 		freq = getField('freqFieldRaw');
-		if (!checkFreqInput(freq, false)) {freq = FREQ38;}					// In case Raw would have no valid frequency / length header
+		if (!checkFreqInput(freq, false)) {freq = FREQ38;}		// In case Raw would have no valid frequency / length header
 	}
 
 	let dec = getDecimalFromRaw(raw, freq);
@@ -1633,8 +1692,69 @@ function convertRaw(raw) {                            // ** Main- Converts all f
 	setField('broadlinkField', broadlinkHex);
 	setField('broadB64Field', hexToBase64(broadlinkHex));
 
-	setField('rawField', getRawFromPronto(pronto).join(", "));			// In case raw had no header, let's use convert back from Pronto to refresh the whole string
+	setField('rawField', getRawFromPronto(pronto).join(", "));	// In case raw had no header, uses convert back from Pronto to refresh the whole string
+																// *Caution* yhis changes the RAW values slightly
+	drawImpulses(trimFreqFromRaw(raw));
+	let noFreqRaw = raw.split(',').map(item => item.trim());    // Converts string back to list and trims each element)
+	setField('tuyaField', getTuyaFromRaw(noFreqRaw));
+	//setField('tuyaField', noFreqRaw.join(", "));
 
+}
+function ui_convertTuya() {
+    cleanOnClick();  // Nettoie les éventuels messages d'erreur précédents
+
+    let tuya = getField("tuyaField").trim(); // Récupère la valeur entrée par l'utilisateur
+    if (!tuya) {
+        message("Tuya field is empty.");
+        return;
+    }
+
+	try {
+		window.atob(tuya.replace(/[ \r\n]+$/, ""));
+	} catch(e) {
+		if (e.code === 5) {
+			message('Base 64 format not recognized in Tuya field');
+		}
+		return;
+	}
+
+	convertTuya(tuya);
+	if (document.getElementById('tuyaFrOn').checked) {	  // only if "Add Freq" is checked
+		refreshAll(true);
+	} else {
+		write("No variable frequency in Tuya format, hence converting only to Raw. Click 'Add Frequency' to convert to other formats.")
+	}
+	setFocus('broadlinkField');
+
+}
+function convertTuya(tuya) {                            // ** Main- Converts all fields from Tuya B64 string value ********
+
+
+	let raw = getRawFromTuya(tuya).join(", ");
+	setField('rawField', raw);
+	drawImpulses(trimFreqFromRaw(raw));
+
+	if (document.getElementById('tuyaFrOn').checked) {	  // Will convert to other formats only if "Add Freq" is checked
+
+		let freq = freqFromDecimal(raw, 0, true)          // Checks if raw contains hard-coded frequency value (if not, 'freqFieldRaw' gets reset)
+		if (!checkFreqInput(freq, false)) {
+			freq = getField('freqFieldTuya');
+			if (!checkFreqInput(freq, false)) {freq = FREQ38;}	// In case Raw would have no valid frequency / length header
+		}
+
+		let dec = getDecimalFromRaw(raw, freq);
+		setField('decimalField', dec.join("L, ") + "L");
+		
+		let pronto = getProntoFromRaw(raw, freq);
+		setField('prontoField', pronto);
+		
+		let broadlinkHex = getBroadlink(pronto, "26").join("");
+		setField('broadlinkField', broadlinkHex);
+		setField('broadB64Field', hexToBase64(broadlinkHex));
+
+		setField('rawField', getRawFromPronto(pronto).join(", "));	// In case raw had no header, let's use convert back from Pronto to refresh the whole string
+
+	}
 }
 function ui_convertBroadlink() {                      // Convert from Broadlink Hex button
 	cleanOnClick();
@@ -1657,8 +1777,12 @@ function convertBroadlink(broadlinkHex) {             // ** Main- Converts all f
 
 	let freq = FREQ38;                                          // Here for the arbitrary frequency
 
-	let raw = getRawFromBroadlink(broadlinkHex).join(", ");
-	setField('rawField', raw);
+	let rawList = getRawFromBroadlink(broadlinkHex);
+	let raw = rawList.join(", ");
+	setField('rawField', rawList.join(", "));
+	drawImpulses(trimFreqFromRaw(raw));
+	
+	setField('tuyaField', getTuyaFromRaw(rawList));
 
 	let dec = getDecimalFromRaw(raw, freq);
 	setField('decimalField', dec.join("L, ") + "L");
@@ -1687,13 +1811,16 @@ function ui_convertB64() {                            // Convert from Broadlink 
 }
 function convertB64(b64) {                            // ** Main- Converts all fields from Broadlink B64 string value ********
 
-	let freq = FREQ38;                                          // See comment in convertBroadlink function
+	let freq = FREQ38;                                // See comment in convertBroadlink function
 
 	let broadlinkHex = base64ToHex(b64);
 	setField('broadlinkField', broadlinkHex);
 
-	let raw = getRawFromBroadlink(broadlinkHex).join(", ");
+	let rawList = getRawFromBroadlink(broadlinkHex);
+	let raw = rawList.join(", ");
 	setField('rawField', raw);
+	drawImpulses(trimFreqFromRaw(raw));
+	setField('tuyaField', getTuyaFromRaw(rawList));
 
 	let dec = getDecimalFromRaw(raw, freq);
 	setField('decimalField', dec.join("L, ") + "L");
@@ -1704,7 +1831,7 @@ function convertB64(b64) {                            // ** Main- Converts all f
 	setField('prontoField', pronto);
 
 }
-function getCommandFromShort(short) {                          // Converts short IR command to expanded one i.e. 'A559+A502' to 'a55a 9a65 + a55a 40bf'
+function getCommandFromShort(short) {                 // Converts short IR command to expanded one i.e. 'A559+A502' to 'a55a 9a65 + a55a 40bf'
 	let command = '';                                           //
 	while (short.length > 3) {                                  // If not proper groups of pairs, will add a lonely + at the end
 		command += necPair(short.slice(0,4));                   //  rather than throw an error
@@ -1717,20 +1844,27 @@ function getCommandFromShort(short) {                          // Converts short
 	}
 	return command;
 }
-function getShortFromCommand(hex, opt) {                        // Tries to convert expanded IR command to short one i.e. 'a55a 9a65 + a55a 40bf' to 'A559+A502' 
+function getShortFromCommand(hex, opt, isNecExtended) {     // Tries to convert expanded IR command to short one i.e. 'a55a 9a65 + a55a 40bf' to 'A559+A502' 
 	//                                                                if opt, function will throw errors and update fields
 	let errMsg = '';
 	let err1 = ', no pairing found for values in parenthesis. ';
 	let err2 = ' (partial conversion)';
 
 	hex = stripHex(hex, 4);                                    // Removes spaces and + signs ; min length set to 4
-	if (hex != '') {
+	if (hex !== '') {
 		setField('cCommandField', formatShort(hex, 4, 8));
 		let short = '';                                       //
-		while (hex.length > 3) {                              //
-			short += necDepair(hex.slice(0,4))                //
-			hex = hex.slice(4);                               // 
-		}
+        let bytes = chunk(hex, 2).map(b => toLsb(parseInt(b, 16)).toString(16).padStart(2, '0'));
+
+        if (isNecExtended) {
+            short = bytes[1] + bytes[0] + "+" + bytes[2]; // AAAACC format for NEC Extended
+			return short;
+        } else {
+            while (hex.length > 3) {
+                short += necDepair(hex.slice(0, 4));
+                hex = hex.slice(4);
+            }
+        }
 
 		if (short.includes('(')) {errMsg = err1};             // Error on no pairing identified
 		if (hex) {errMsg += err2};                            // Error on length (rest left) 
@@ -1744,6 +1878,7 @@ function getShortFromCommand(hex, opt) {                        // Tries to conv
 }
 
 // Conversion subfunctions --------------------------------------------------------------------------------------------------->	
+
 function stripHex(string, min) {                           // Strips a string to its hex content, adds %min padding, returns string or ''
 
 	string = string.replace(/[+,;\s/-]|/g, '');           // Removes 'Ox, +,;- and all white space signs
@@ -1939,16 +2074,15 @@ function necDepair(hex) {                                // Reverts one pair of 
 		return ' (' + hex + ') ';
 	}
 }
-function toLsb(byte) {                                   // Inverts bits order in a byte:  11000001 becomes 10000011
-	let lsb = 128 * (byte & 1);                              // ugly & dirty, but fast LSB to MSB (or MSB to LSB)
-	lsb += 64 * ((byte & 2) != 0);
-	lsb += 32 * ((byte & 4) != 0);
-	lsb += 16 * ((byte & 8) != 0);
-	lsb += 8 * ((byte & 16) != 0);
-	lsb += 4 * ((byte & 32) != 0);
-	lsb += 2 * ((byte & 64) != 0);
-	lsb += 1 * ((byte & 128) != 0);
-	return lsb;
+function toLsb(byte) {										// Inverts bits order in a byte:  11000001 becomes 10000011
+    return ((byte & 0x01) << 7) |							//   to offer fast LSB to MSB (or MSB to LSB)
+           ((byte & 0x02) << 5) |							// i.e. receives 193 (0xc1, b 11000001) returns 131 (0x83, b10000011)
+           ((byte & 0x04) << 3) |
+           ((byte & 0x08) << 1) |
+           ((byte & 0x10) >> 1) |
+           ((byte & 0x20) >> 3) |
+           ((byte & 0x40) >> 5) |
+           ((byte & 0x80) >> 7);
 }
 function invert(byte) {                                  // Inverts every bit value in a byte: 11000001 becomes 00111110
 	return byte ^ 255;                                     // could as well be 255 - byte
@@ -1988,6 +2122,386 @@ function hexPairPad(val) {                               // Converts a decimal t
 	if (hex.length %2) {hex = '0' + hex};
 	return hex;
 }
+function trimFreqFromRaw(raw) {   					// Accepts list or string - Trims frequency header from raw if present
+	/*
+	If Raw embeds frequency information, , first byte should be 0 and sequence length
+	would be encrypted in bytes 2 and 3, without counting header. Sum of bytes 2 & 3 *2 
+	should then equal the length of the bytes sequence, since each encoded value is 2 bytes long.
+	Returns List or String, depending on what has been received as argument.
+	*/
 
-// Below can be deleted ------------------------------------------------------->
+	const isString = typeof raw === "string";
+	const rawList = isString ? raw.split(',').map(Number) : raw;
 
+	// if first byte is not 0, assume sequence has no a frequency header: 
+	// return as is, but trim the last element if the length is odd
+	if (parseInt(rawList[0])) {return raw}
+
+	const sequenceLength = (parseInt(rawList[2]) + parseInt(rawList[3])) * 2;
+
+	if (sequenceLength === rawList.length - 4) {
+		let trimmed = rawList.slice(4);
+		return isString ? trimmed.join(", ") : trimmed;
+	}
+
+	return isString ? rawList.join(" ") : rawList;
+}
+// Decode Tuya ------------------------------------------------------->
+
+function getRawFromTuya(tuya) {							// Converts Tuya IR code to raw in -> b64 string, out -> array of raw durations 
+	/**
+	 * Decodes a Tuya IR code compressed string into a raw IR signal (list of durations).
+	 */
+
+	// Step 1: Base64 decode
+	const payload_bytes_base64decoded = atob(tuya); 	// base64 decoder
+	const payload_bytes_array = Uint8Array.from(payload_bytes_base64decoded, c => c.charCodeAt(0));
+
+	if (!mightBeFastLZLevel1(payload_bytes_array)) {	// Sanity check on decoded b64 string
+		message("Tuya sequence not recognized : Not FastLZ Level 1 compressed data");
+	return null
+	}
+
+	// Step 2: Decompress FastLZ
+	const payload_bytes_decompressed_array = decompress_fastlz(payload_bytes_array);
+
+	// Step 3: Unpack to list of integers (unsigned short <H)
+	const ir_signal_durations = [];
+	const buffer = new DataView(payload_bytes_decompressed_array.buffer); // Use DataView for efficient byte access
+
+	for (let i = 0; i < payload_bytes_decompressed_array.length; i += 2) {
+	  ir_signal_durations.push(buffer.getUint16(i, true)); // getUint16 with little-endian (true)
+	}
+
+	return ir_signal_durations;
+  }
+function decompress_fastlz(input_bytes) {				// Decompresses a FastLZ compressed Tuya stream, and returns the decompressed bytes array.
+	/**
+	 * Decompresses a FastLZ compressed Tuya stream, and returns the decompressed Uint8Array.
+	 */
+	const output_bytes = [];
+	let input_offset = 0;
+
+	while (input_offset < input_bytes.length) {
+	  const header_byte = input_bytes[input_offset];
+	  input_offset += 1;
+
+	  let length_bits = header_byte >> 5;
+	  const distance_bits = header_byte & 0b11111;
+
+	  if (length_bits === 0) {
+		// literal block
+		let length_bytes = distance_bits + 1;
+		const data_block = input_bytes.slice(input_offset, input_offset + length_bytes);
+		input_offset += length_bytes;
+		// Assert in Python: assert len(data_block) == length_bytes - in JS, slice handles bounds
+		output_bytes.push(...data_block);
+
+	  } else {
+		// length-distance pair block
+		let length_bytes_val = length_bits;
+		if (length_bits === 7) {
+		  length_bytes_val += input_bytes[input_offset];
+		  input_offset += 1;
+		}
+		let length_bytes = length_bytes_val + 2;
+		const distance_val = (distance_bits << 8 | input_bytes[input_offset]) + 1;
+		input_offset += 1;
+
+		const data_block = [];
+		while (data_block.length < length_bytes) {
+		  const start_index = Math.max(0, output_bytes.length - distance_val);
+		  const take_from_output = output_bytes.slice(start_index, start_index + (length_bytes - data_block.length));
+		  data_block.push(...take_from_output);
+		}
+		output_bytes.push(...data_block);
+	  }
+	}
+	return new Uint8Array(output_bytes); // Return as Uint8Array to mimic Python's bytes
+
+  }
+function mightBeFastLZLevel1(data) {					// Basic check on decoded b64 string to see if it might be FastLZ Level 1 compressed data.
+    /**
+     * Checks if the data *might* be in FastLZ Level 1 compressed format.
+     * Heuristic check based on the first byte, following the FastLZ Level 1 spec.
+     * FastLZ documentation: https://github.com/ariya/FastLZ
+     */
+    
+    if (!data || data.length < 2) {
+        // FastLZ Level 1 block needs at least 2 bytes: header + data
+        return false;
+    }
+
+    let firstByte = data[0];
+
+    // Extract block tag (3 most significant bits - MSB)
+    let blockTag = firstByte >> 5;
+
+    // Check if block tag is 0 for Level 1
+    if (blockTag !== 0b000) { // Block tag for Level 1 must be 0 (binary '000')
+        return false;
+    }
+
+    // Extract literal run size (5 least significant bits - LSB) and add 1
+    let literalRunSize = (firstByte & 0b00011111) + 1;
+	
+    if (data.length < literalRunSize) {
+		// Data length is shorter than the declared literal run size
+        // Not enough bytes to contain the literal run.
+        return false;
+    }
+	
+    return true;
+}
+
+// Encode Tuya ------------------------------------------------------->
+
+function getTuyaFromRaw(raw, compression_level = 2) {	// Encodes a raw IR signal (list of durations) into a Tuya IR code string.
+	/*
+	 * Based on Python code from @mildsunrise https://gist.github.com/mildsunrise/1d576669b63a260d2cff35fda63ec0b5
+	 */
+
+	if (raw.length < 16) {
+		return '';
+	}
+	raw = trimFreqFromRaw(raw);  // Trims frequency header from raw string if present
+	
+	// Step 1: Pack durations to bytes
+	const payload_bytes_packed = new Uint8Array(raw.length * 2);
+	const buffer = new DataView(payload_bytes_packed.buffer);
+	for (let i = 0; i < raw.length; i++) {
+		buffer.setUint16(i * 2, raw[i], true); // setUint16 with little-endian (true)
+	}
+
+	// Step 2: Compress FastLZ
+	const output_io_wrapper = { // Mimic io.BytesIO interface for Javascript
+		_bytes: [],
+		write: function(bytes) {
+			if (bytes instanceof Uint8Array) {
+				this._bytes.push(...bytes);
+			} else if (typeof bytes === 'string') {
+				this._bytes.push(...Uint8Array.from(bytes, c => c.charCodeAt(0)));
+			} else if (Array.isArray(bytes)) {
+				this._bytes.push(...bytes);
+			}
+		},
+		getvalue: function() {
+			return new Uint8Array(this._bytes);
+		}
+	};
+
+
+	_compress_fastlz(output_io_wrapper, payload_bytes_packed, compression_level);
+	const payload_bytes_compressed = output_io_wrapper.getvalue();
+
+
+	// Step 3: Base64 encode and clean
+	let base64String = btoa(String.fromCharCode(...payload_bytes_compressed)); // btoa expects a binary string
+	base64String = base64String.replace(/\n/g, ''); // Remove newlines - not expected in JS btoa, but to be safe
+
+	return base64String;
+}
+function _compress_fastlz(output_io, data_bytes, level = 2) {	// Compresses a raw bytes array using FastLZ, outputs "Tuya stream" to output_io.
+	/**
+	 * Takes a Uint8Array and outputs a FastLZ compressed "Tuya stream" to output_io.
+	 * Implemented compression levels: 0, 1, 2 (level 3 is not implemented for brevity)
+	 */
+	if (level === 0) {
+		return _emit_literal_blocks(output_io, data_bytes);
+	}
+
+	const window_size = 2**13;
+	const max_length = 255+9;
+
+	function distance_candidates_func(pos) {
+		return Array.from({ length: Math.min(pos, window_size) }, (_, i) => i + 1);
+	}
+
+	function find_length_for_distance(start_pos, current_pos, data_bytes) {
+		let length_val = 0;
+		const limit_length = Math.min(max_length, data_bytes.length - current_pos);
+		while (length_val < limit_length && data_bytes[current_pos + length_val] === data_bytes[start_pos + length_val]) {
+			length_val += 1;
+		}
+		return length_val;
+	}
+
+	function* find_length_candidates_func(pos, data_bytes) {
+		for (const distance of distance_candidates_func(pos)) {
+			yield [find_length_for_distance(pos - distance, pos, data_bytes), distance];
+		}
+	}
+
+	function find_length_cheap_func(pos, data_bytes) {
+		for (const candidate of find_length_candidates_func(pos, data_bytes)) {
+			if (candidate[0] >= 3) {
+				return candidate;
+			}
+		}
+		return null;
+	}
+
+	function find_length_max_func(pos, data_bytes) {
+		let max_candidate = null;
+		for (const candidate of find_length_candidates_func(pos, data_bytes)) {
+			if (!max_candidate || candidate[0] > max_candidate[0] || (candidate[0] === max_candidate[0] && -candidate[1] > -max_candidate[1])) {
+				max_candidate = candidate;
+			}
+		}
+		return max_candidate;
+	}
+
+
+	let find_length_function;
+	if (level <= 2) {
+		find_length_function = { 1: find_length_cheap_func, 2: find_length_max_func }[level];
+		let block_start_pos = 0;
+		let current_pos = 0;
+		while (current_pos < data_bytes.length) {
+			const candidate = find_length_function(current_pos, data_bytes);
+			if (candidate && candidate[0] >= 3) {
+				_emit_literal_blocks(output_io, data_bytes.slice(block_start_pos, current_pos));
+				_emit_distance_block(output_io, candidate[0], candidate[1], output_io);
+				current_pos += candidate[0];
+				block_start_pos = current_pos;
+			} else {
+				current_pos += 1;
+			}
+		}
+		_emit_literal_blocks(output_io, data_bytes.slice(block_start_pos, current_pos));
+		return;
+	}
+
+	// (Level 3 compression not implemented here)
+	// For now, defaulting to level 2 if level > 2 is requested.
+	 find_length_function = find_length_max_func;
+		let block_start_pos = 0;
+		let current_pos = 0;
+		while (current_pos < data_bytes.length) {
+			const candidate = find_length_function(current_pos, data_bytes);
+			if (candidate && candidate[0] >= 3) {
+				_emit_literal_blocks(output_io, data_bytes.slice(block_start_pos, current_pos));
+				_emit_distance_block(output_io, candidate[0], candidate[1], output_io);
+				current_pos += candidate[0];
+				block_start_pos = current_pos;
+			} else {
+				current_pos += 1;
+			}
+		}
+		_emit_literal_blocks(output_io, data_bytes.slice(block_start_pos, current_pos));
+		return;
+
+
+}
+function _emit_literal_blocks(output_io, data_bytes) {
+	/**
+	 * Emits literal blocks to the output IO stream.
+	 */
+	for (let i = 0; i < data_bytes.length; i += 32) {
+		_emit_literal_block(output_io, data_bytes.slice(i, i+32));
+	}
+}
+function _emit_literal_block(output_io, data_block) {
+	/**
+	 * Emits a single literal block to the output IO stream.
+	 */
+	const block_length = data_block.length - 1;
+	if (!(0 <= block_length < (1 << 5))) {
+		throw new Error("Assertion failed: 0 <= block_length < (1 << 5)");
+	}
+	output_io.write(new Uint8Array([block_length]));
+	output_io.write(data_block);
+}
+function _emit_distance_block(output_io, block_length, distance_val) {
+	/**
+	 * Emits a distance block to the output IO stream.
+	 */
+	distance_val -= 1;
+	if (!(0 <= distance_val < (1 << 13))) {
+		 throw new Error("Assertion failed: 0 <= distance_val < (1 << 13)");
+	}
+	block_length -= 2;
+	if (!(block_length > 0)) {
+		throw new Error("Assertion failed: block_length > 0");
+	}
+	const block_bytes = [];
+	if (block_length >= 7) {
+		if (!(block_length - 7 < (1 << 8))) {
+			throw new Error("Assertion failed: block_length - 7 < (1 << 8)");
+		}
+		block_bytes.push(block_length - 7);
+		block_length = 7;
+	}
+	block_bytes.unshift((block_length << 5) | (distance_val >> 8));
+	block_bytes.push(distance_val & 0xFF);
+	output_io.write(new Uint8Array(block_bytes));
+}
+
+// Impulses panel --------------------------------------------------------------------------------------------------->
+
+function drawImpulses(raw) {			// Accepts list or string - Draws signal on canvas
+	/**
+	 * Draws impulse sequence on canvas element.
+	 */
+
+	// If raw is a string, convert it to an array of numbers
+	const isString = typeof raw === "string";
+    raw = isString ? raw.split(',').map(Number) : raw;
+
+	// If the length is odd, remove the last element
+	// else last element would be interpreted as a constant high value.
+	raw = raw.length % 2 === 1 ? raw.slice(0, -1) : raw;
+
+	console.log(raw);
+	if (!raw || raw.length === 0) {
+        message("No signal data to display.");
+        return;
+    }
+
+    const canvas = document.getElementById("signalCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Get the real dimensions of the container
+    const container = document.getElementById("fCanvas");
+    const width = container.clientWidth * 0.95; // Uses 95% of available width
+    const height = 50;
+
+    // Handles high-DPI screens to avoid blurry lines
+	const dpr = window.devicePixelRatio || 1;
+	canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    ctx.scale(dpr, dpr); // Adjusts scaling to match actual pixels and avoid blurriness
+
+	// Clears canvas before drawing
+    ctx.clearRect(0, 0, width, canvas.height);
+	
+    const maxTime = raw.reduce((acc, val) => acc + val, 0);
+    const scaleX = width / maxTime; // Horizontale scale
+    const scaleY = height * 0.8; // Uses 80% of the canvas height
+
+    let time = 0;
+    ctx.beginPath();
+    ctx.moveTo(0, height); // Starts from the bottom
+
+    for (let i = 0; i < raw.length; i++) {
+        let level = i % 2 === 0 ? 1 : 0;
+        let x = time * scaleX;
+		let y = level === 1 ? height - scaleY : height; // Ensures 0 is exactly at the bottom
+
+        ctx.lineTo(x, y); // Draws line
+        time += raw[i];
+        x = time * scaleX;
+        ctx.lineTo(x, y); // Maintains level for duration
+    }
+
+	const rootStyles = getComputedStyle(document.documentElement);
+    const strokeColor = rootStyles.getPropertyValue("--col-cl").trim();
+    ctx.strokeStyle = strokeColor; // Lines color
+    ctx.lineWidth = 1;
+    ctx.stroke();
+}
+function ui_draw() {
+	drawImpulses(getField('rawField'));
+}

@@ -1,6 +1,13 @@
-:root,                       /* Global variables declarations    */
+/* Global variables declarations    */
+:root {
+  --fntSize: 1em; /* Default font size */
+  font-family: Verdana, Tahoma, sans-serif; /* Default font family */
+}
+
 :root.col {                                                             /* Colored interface palette */
   --fntSize: 1em;
+  --col-ca: #496d8f;        /*  Canvas background (lcd: #a9bf94)*/
+  --col-cl: #a9bf94;        /*  Canvas lines                    */
   --col-bg: #496d8f;        /*  Page background                 */
   --col-fb: #eeeeee;        /*  Fields background               */
   --col-ft: #000000;        /*  Fields text                     */
@@ -27,6 +34,8 @@
 }
 :root.bnw {                                                             /* Black on white interface palette */
   --fntSize: 1em;
+  --col-ca: #000000;        /*  Canvas background               */
+  --col-cl: #ffffff;        /*  Canvas lines                    */
   --col-bg: #ffffff;        /*  Page background                 */
   --col-fb: #ffffff;        /*  Fields background               */
   --col-ft: #000000;        /*  Fields text                     */
@@ -40,7 +49,7 @@
   --col-lb: #000000;        /*  Labels (mostly Command fields)  */
   
   --col-a1: #666666;        /*  Darkest:   buttons              */
-  --col-a2: #444444;        /*             buttons flyover      */
+  --col-a2: #999999;        /*             buttons flyover      */
   
   --col-a3: #cccccc;        /*             background           */
   --col-a4: #dddddd;        /*  Brightest: fieldsets background */
@@ -53,12 +62,14 @@
 }
 :root.inv {                                                             /* Inverted video interface palette */
   --fntSize: 1em;
+  --col-ca: #000000;        /*  Canvas background               */
+  --col-cl: #a9bf94;        /*  Canvas lines                    */
   --col-bg: #000000;        /*  Page background                 */
   --col-fb: #333333;        /*  Fields background               */
   --col-ft: #ffffff;        /*  Fields text                     */
   --col-lt: #666666;        /*  Placeholder text (light color)  */
   --col-h1: #ffa600;        /*  H1 text                         */
-  --col-s1: #000000;        /*  H1 text shadow                  */
+  --col-s1: #1b1b1b;        /*  H1 text shadow                  */
   --col-h2: #ffa600;        /*  H2 text                         */
   --col-sb: #912b2b;        /*  Small left buttons              */
   --col-sh: #b64747;        /*  Small left buttons hover        */
@@ -78,10 +89,6 @@
   --col-c4: #c25c91;        /*  Brightest: fieldsets background */
 }
 
-
-<!---------------------->
-
-
 * {
   box-sizing: border-box;
 }
@@ -96,10 +103,10 @@ progress {
 }
 
 h1 {
+  cursor: pointer;
   color: var(--col-h1);
   text-shadow: -3px 0 4px var(--col-s1);
   font-size: 1.5em;
-  font-family: Verdana, Tahoma, sans-serif;
   font-weight: lighter;
 }
 h2 {
@@ -108,97 +115,42 @@ h2 {
   font-size: medium;
   font-style: normal;
   font-weight: normal;
-  padding: 0 0 0 0;
   margin: 0 0;
-
 }
 h3 {                                        /* Right column width, and mostly text for input field labels on the left */
+  text-align: center;
   color: var(--col-h1);
-  font-family: Verdana, Tahoma, sans-serif;
   font-weight: lighter;
   font-size: small;
-  float: center;
-  width: 85%;
-  margin: 7px 22px;
-
+  margin: 7px 10px;
   text-shadow: 1px 1px 1px var(--col-s1);
 }
 a {
   color: var(--col-h1);
   font-style: normal;
   text-decoration: none;
+  transition: color 0.2s ease, background-color 0.2s ease; /* Add background to transition*/
+  display: inline-block; /* Needed for padding and background */
+  padding: 2px 5px;    /* Add padding for a better look */
+  border-radius: 4px;  /* Optional: rounded corners */
 }
 
-.container {                                     /* Container for each main categories form */
-  /* border:2px solid var(--col-a1); */
-  border:1px solid var(--col-a1);
-  box-shadow: 5px 5px 10px var(--col-s1);
-  border-radius: 8px;
-  background-color: var(--col-a3);
-  padding: 0px 12px 1px 10px;
-  margin: 0px 10px 10px 10px;
+a:hover {
+  color: var(--col-a1);
 }
 
-.closebutton {
-  font-size: small;
-  cursor: pointer;
-  background-color: transparent;
-  border: 0px;
-  outline: none;
-  color: var(--col-ft);
-  position: relative;
-  top: 0;
-  right: 0;
-  float:right;
-  padding: 0;
-  margin: 0;
-
-}
-
-
-.theme-container {                                     /* Container for color theme and font size form */
-  /* border:2px solid var(--col-a1); */
-  border:1px solid var(--col-a1);
-  box-shadow: 5px 5px 10px var(--col-s1);
-  border-radius: 8px;
-  background-color: var(--col-a3);
-  margin: 0px 10px 10px 10px;
-  width: 230px;
-  height: 32px;
-  float:right;
-}
-
-form {                                          /* Invisible container - set border to fine-tune */
-  margin: 6px 6px 4px 6px;
-  /* border: 1px solid var(--col-a1);*/
-}
-
-input[type="text"],                             /* Large text areas for command strings (careful: margin have to be inverted here) */
+/* Large text areas for command strings (careful: margin have to be inverted here) --------------------------------------------------------*/
 select,
 textarea {
+  border: 1px solid var(--col-h2);
   background-color: var(--col-fb);
   color: var(--col-ft);
   font-size: var(--fntSize);
   width: 100%;
   height: 60px;
   padding: 6px 6px;
-  margin: 6px 0px 4px 0px;
   display: inline-block;
-  border: 1px solid var(--col-h2);
   border-radius: 6px;
-  box-sizing: border-box;
-}
-
-input[type="transparent"], input[type="number"] {                     /* Small text areas for Commands and Hertz or Repeat values on the left side */
-  background-color: var(--col-fb);
-  color: var(--col-ft);
-  border: 1px solid var(--col-sh);
-  width: 50px;
-  height: 1em;
-  padding: 12px 10px;
-  margin: 4px 0;
-  display: inline-block;
-  border-radius: 0px;
   box-sizing: border-box;
 }
 
@@ -206,8 +158,6 @@ label {                                        /* Input field labels (mostly top
   color: var(--col-lb);
   font-size: 0.9em;
   text-shadow: 1px 1px 1px var(--col-s1);
-  padding: 0 12px 18px 0;
-  font-weight: normal;
   display: inline-block;
 }
 
@@ -231,8 +181,6 @@ input[type="submit"]:hover {
 input.small {                                      /* Small buttons */
   background-color: var(--col-sb);
   font-size: 0.8em;
-  width: 60px;
-  min-width: 0;
   height: 20px;
   color: var(--col-st);
   margin: auto;
@@ -246,98 +194,230 @@ input.small:hover {
   background-color: var(--col-sh);
 }
 
+/* Mini buttons used at the top and in Broadlink signal types*/
 input.minib {
   font-size: 0.6em;
   padding: 0px 0px 0px 0px;
   width: 20px;
   height: 20px;
-  margin: 3px 3px;
+  margin: 0px 3px;
   vertical-align: top;
   float: none;
+  transform: translateY(-2px);
 }
-
-.col-25 {                                        /* Left column width, and mostly text for input field labels on the left */
-  color: var(--col-sb);
-  font-family: Verdana, Tahoma, sans-serif;
-  font-size: small;
-  font-style: italic;
-  float: left;
-  width: 14%;
-  padding: 0;
-  margin: 6 0 0 0;
-}
-
-.col-75 {                                        /* Right column width, and mostly text for input field labels on the left */
-  color: var(--col-a1);
-  font-family: Verdana, Tahoma, sans-serif;
-  font-weight: lighter;
-  font-size: small;
-  float: left;
-  width: 85%;
-  margin-top: 6px;
+/* New subclass for minib buttons that should NOT be moved up */
+input.notranslate {
+  transform: none; /* Reset the transform */
 }
 
 
-.row:after {                                     /* Clear floats after the columns */
+
+
+
+
+/* Common widths used --------------------------------------------------------------------------------------------------------------- */
+.button-mini { width: 40px; }
+.button-medium { width: 60px; }
+.button-large { width: 200px; }
+.input-small  { width: 70px;  }
+.input-medium { width: 100px; }
+.input-xlarge { width: clamp(100px, 70%, 230px); }
+.input-xxlarge { width: clamp(180px, 63%, 354px); }
+
+/* Background colors for panels --------------------------------------------------------------------------------------------*/
+.command-panel-color {background-color: var(--col-a3);}
+.pronto-panel-color {background-color: var(--col-b3);}
+.decimal-panel-color {background-color: var(--col-c3);}
+.raw-panel-color {background-color: var(--col-a3);}
+.tuya-panel-color {background-color: var(--col-a2);}
+.broadlinkHex-panel-color {background-color: var(--col-b3);}
+.broadlinkB64-panel-color {background-color: var(--col-c3);}
+.canvas-panel-color {background-color: var(--col-ca);}
+
+/* Background colors for subpanels -----------------------------------------------------------------------------------------*/
+.command-subpanel-color {background-color: var(--col-a4);}
+.pronto-subpanel-color {background-color: var(--col-b4);}
+.decimal-subpanel-color {background-color: var(--col-c4);}
+.raw-subpanel-color {background-color: var(--col-a2);}
+.tuya-subpanel-color {background-color: var(--col-a3);}
+.broadlinkHex-subpanel-color {background-color: var(--col-b4);}
+.broadlinkB64-subpanel-color {background-color: var(--col-b3);}
+
+
+
+
+
+/* Containers */
+
+
+/* Responsive layout - when screen is less than 600px wide, make the two columns stack on top of each other */
+@media screen and (max-width: 600px) {
+  .col-25,
+  .col-75,
+  input[type="submit"] {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+/* Thin top panels ------------------------------------------------------------------------------------------------------------------------- */
+.top-container {
+  border: 1px solid var(--col-b2);
+  box-shadow: 5px 5px 10px var(--col-s1);
+  border-radius: 8px;
+  margin: 0px 10px 10px 10px;
+  float: right;
+  display: flex;
+  align-items: center;
+  padding: 0 8px 0 5px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+/* Colors for each panel */
+.top-container.panels {
+  background-color: var(--col-b4);
+}
+/* Position of Help links */
+.top-container a {
+  transform: translateY(-4px);
+}
+.top-container.help {
+  background-color: var(--col-a2);
+  height: 30px;
+}
+.top-container.themes {
+  background-color: var(--col-c4);
+  padding-right: 12px;
+}
+.top-container-fontsize {
+  width: auto;
+  margin-right: 10px;
+  background-color: var(--col-c4);
+  text-align: center;
+}
+/* 1st Container: colored round box for each main category panel ---------------------------------------------------------- */
+.container {
+  /*border:2px solid yellow;*/
+  box-shadow: 5px 5px 10px var(--col-s1);
+  border-radius: 8px;
+  padding: 0px 5px 1px 5px;
+  margin: 0px 5px 5px 5px;
+}
+/* Invisible container inside panels ---------------------------------------------------------------------------------------*/
+form {
+  border: none; /* uneeded */
+  /*border:2px solid black;*/
+  margin: 6px 2px 4px 4px;  /* Top, right, bottom, left*/
+}
+.row {
+  /* border: 2px solid blueviolet;*/
+  padding-top: 10px;
+  padding-bottom: 5px;
+  margin-top: 10px; /* Empty space between panels */
+}
+/* Clear floats after the columns */
+.row:after {
   content: "";
   display: table;
   clear: both;
 }
-
-::placeholder {                                  /* Style for hints that describe expected value of input fields */
-  color: var(--col-lt);
+/* Left column width, and mostly text for input field labels on the left; 'Hz', 'Repeats'... */
+.col-25 {
+  /* border:2px solid green;*/
+  width: 16%;
+  font-size: small;
   font-style: italic;
+  float: left;
+}
+/* Right column width */
+.col-75 {
+  /* border:2px solid red; */
+  width: 83%;
+  font-size: small;         /* Label texts for 'Short', 'Command'...*/
+  float: right;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px; /* Space between elements */
+}
+/* Invisible horizontal rectangles to organize elements used in col-75 in rows (lines) */
+.line-row {
+  /* border: 1px solid white; */
+  width:100%;
+  display: flex;
+  justify-content: space-between;
 }
 
-.fieldset1 {                                    /* Frames containing IR/RF radio buttons & controls */
-  background-color: var(--col-b4);
+
+
+
+
+
+/* Small text areas for Commands and Hz or Repeat on the left (type="number" adds the up-down arrows to shift values) -----*/
+input.transparent, input.number {
+  background-color: var(--col-fb);
+  color: var(--col-ft);
+  border: 1px solid var(--col-sh);
+  height: 1em;
+  padding: 12px 10px;
+  margin: 4px 0;
+  display: inline-block;
+  border-radius: 0px;
+  box-sizing: border-box;
+}
+
+/* Small frames under Broadlink containing IR/RF radio buttons & controls -------------------------------------------------*/
+.fieldset1 {
   border: 1px solid var(--col-a1);
   -moz-border-radius: 8px;
   -webkit-border-radius: 8px;
   border-radius: 8px;
-  width: 235px;
-  padding: 2px 10px 0px;
-  margin: 0px 12px 2px 6px;
+  width: 260px;
+  height: 30px;
   font-size: 0.8em;
 }
-
-.fieldset2 {                                    /* Frames containing Hz frequencies or Repeat values */
-  background-color: var(--col-c4);
+/* Left Frames containing Hz frequencies or Repeat values ---------------------------------------------------------------*/
+.fieldset2 {
   border: 1px solid var(--col-a1);
-  -moz-border-radius: 8px;
-  -webkit-border-radius: 8px;
   border-radius: 8px;
   padding: 5px 5px;
   margin: 0;
   font-size: 1em;
-  width: 135px;
+  width: 95%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
 }
-.command {                                       /* Forms background color per section */
-  background-color: var(--col-a3);
+/* Style for the label/input pairs - make them flex items */
+.fieldset2 > div {                /* Direct child selector (more efficient) */
+  display: flex;                  /* Make each div a flex container */
+  align-items: center;            /* Vertically center label and input */
+  justify-content: center;        /* Push label to left, input to right */
 }
-.pronto {
-  background-color: var(--col-b3);
+.fieldset2 > div > label{
+  font-size: 0.9em;
+  flex-shrink: 0;                 /* label do not shrink*/
+  padding-right: 5px;            /* Keep some space before input field */
 }
-.color-a4 {
-  background-color: var(--col-a4);
+/* Label style for RF / IR Broadlink radio buttons */
+.fieldset2 .button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 4px;
 }
-.color-b4 {
-  background-color: var(--col-b4);
-}
-.decimal {
-  background-color: var(--col-c3);
-}
-.color-c4 {
-  background-color: var(--col-c4);
-}
-.broadlinkHex {
-  background-color: var(--col-b3);
-}
-.broadlinkB64 {
-  background-color: var(--col-c3);
-}
+/* Different widths for the left inputs */
+.fieldset2 input.freq-input {width: 7em;}
+.fieldset2 input.repeat-input {width: 5em;}
+.fieldset2 input.length-input {width: 4em;}
 
-label[style="mini"] {                           /* Label styles for RF / IR Broadlink radio buttons */
+
+
+
+
+
+
+
+label.mini {
   font-size: 1em;
   margin-bottom: 1px;
   margin-top: 1px;
@@ -346,18 +426,9 @@ label[style="mini"] {                           /* Label styles for RF / IR Broa
   font-weight: lighter;
   color: var(--col-h2);
   text-shadow: 0px 0px 5px var(--col-s1);
-  
 }
-@media screen and (max-width: 600px) {           /* Responsive layout - when screen is less than 600px wide, make the two columns stack on top of each other */
-  .col-25,
-  .col-75,
-  input[type="submit"] {
-    width: 100%;
-    margin-top: 0;
-  }
-}
-
-@keyframes messageAnim {                        /* message() function animation - see https://www.w3schools.com/cssref/css3_pr_animation-keyframes.asp */
+/* message() function animation - see https://www.w3schools.com/cssref/css3_pr_animation-keyframes.asp --------------------- */
+@keyframes messageAnim {
   0% {
     bottom: 100px;
     left: 200px;
@@ -370,4 +441,27 @@ label[style="mini"] {                           /* Label styles for RF / IR Broa
     right: 50px;
     opacity: 1;
   }
+}
+.closebutton {
+  font-size: small;
+  cursor: pointer;
+  background-color: transparent;
+  border: 0px;
+  outline: none;
+  color: var(--col-ft);
+  float:right;
+  padding: 0;
+  margin: 0;
+}
+
+
+#signalCanvas {
+  display: block;                   /* avoids space below canvas */
+  width: 95%;                       /* S'adapte au conteneur */
+  height: 50px;                     /* Hauteur fixe */
+  color: var(--col-ft);             /* lcd style */
+  background-color: var(--col-ca); 
+  border: none;                     /* would exceed rounded container */
+  margin-left: auto; 
+  margin-right: auto;
 }

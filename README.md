@@ -1,14 +1,24 @@
-# sensus IR & RF codes converter / analyzer for Lirc, Pronto, Broadlink & raw codes
+# sensus IR & RF codes converter / analyzer for Lirc, Pronto, Broadlink, Tuya, & raw codes with Impulses visualization
 
-**[View online](https://pasthev.github.io/sensus/)**
 
-A project to provide an online IR/RF code converting interface and framework.
+<div style="text-align: center;">
+  <a href="https://pasthev.github.io/sensus/" style="font-size: 2em; font-weight: bold; display: block; margin-top: 0.5em; margin-bottom: 0.5em;">☞ View & Use Sensus Online</a>
+</div>
+
+<div style="text-align: center;">
+    <img src="screenshots/sensus_screenshot_03.jpg" width="600">
+</div>
+
+---
+Sensus is an online IR/RF code converting interface and framework.
 The tool doesn't do as much as dedicated software (i.e. IRscrutinizer), but has the
 advantage of being instantly available online.
 Interface is easy to update with additional panels if needed - feel free to fork and
 add your own protocols.
 
-Short "thank you", positive or negative feedback always appreciated: use this [anonymous contact form](https://docs.google.com/forms/d/e/1FAIpQLSckf2f04hYhTN3T6GvchbxhjhKcYHLMRDXnrRfqlM_eRW_NiA/viewform?usp=sf_link)
+Short "thank you", positive or negative feedback always appreciated: use the [Discussions](https://github.com/pasthev/sensus/discussions) link above or this [anonymous contact form](https://docs.google.com/forms/d/e/1FAIpQLSckf2f04hYhTN3T6GvchbxhjhKcYHLMRDXnrRfqlM_eRW_NiA/viewform?usp=sf_link)
+
+Bugs or Feature request? Us the [Issues](https://github.com/pasthev/sensus/issues) link.
 
 ---
 
@@ -17,10 +27,12 @@ Short "thank you", positive or negative feedback always appreciated: use this [a
 ### Code conversion to and from:
 * Lirc codes
 * Pronto
+* Graphic impulses
 * Decimal
 * Raw
 * Broadlink hex (used in Jeedom)
 * Broadlink Base 64 (Used in Home Assistant)
+* Tuya Base 64
 
 ### Frequency change
 * Read or change frequency in Lirc / Pronto / Decimal / Raw frames
@@ -28,6 +40,9 @@ Short "thank you", positive or negative feedback always appreciated: use this [a
 
 ### Broadlink repeats change
 * Read or change Broadlink repeats in Hex or B64
+
+### Tuya conversion
+* Many thanks to [@mildsunrise](https://gist.github.com/mildsunrise/1d576669b63a260d2cff35fda63ec0b5) who provided a Python solution for encoding Tuya sequences.
 
 ### Random IR / RF codes generation:
 * Independant random codes generation in various formats
@@ -40,8 +55,16 @@ Short "thank you", positive or negative feedback always appreciated: use this [a
 * Identification of Nec5 and One-Hot encoded payloads
 * Identification of original Lirc command and possible manufacturer's code from raw frame
 * Cleanup and re-generation of learnt IR/RF packets
-  
+
+### Impulses visualization
+* Note that by default, the signal drawing is trimmed from its header since it is usually not physically sent, but rather an instruction for the device on how to send this sequence. As a convenience, clicking the *Draw* button within the Raw panel will force-display this header in the graphic representation.
+* Note that if the sequence contains an odd number of signals, the last value will be trimmed in the graphic representation. This is to avoid the usually long trailer that has little interest, and would have the effect of changing the scale of the actual signal represented.
+
 ---
+<div style="text-align: center;">
+    <img src="screenshots/sensus_screenshot_01.jpg" width="600">
+</div>
+
   
 ## Notes
 ### Code conversion to and from:
@@ -72,3 +95,7 @@ Short "thank you", positive or negative feedback always appreciated: use this [a
  
 *Both the Js, css and html code can certainly be improved. Happy to learn, so, forks welcome.*
 *
+
+<div style="text-align: center;">
+    <img src="screenshots/sensus_screenshot_02.jpg" width="600">
+</div>

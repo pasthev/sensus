@@ -1,324 +1,456 @@
 <html lang="en" class="inv">      <!-- class will be used to toggle color modes -->
-<head>
-  <meta charset="UTF-8">
-  <title>Sensus IR & RF Code Converter</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js"></script>
-</head>
-<body>
+	<head>
+		<meta charset="UTF-8">
+		<title>Sensus IR & RF Code Converter</title>
+		<link rel="stylesheet" href="style.css">
+		<script src="script.js"></script>
+	</head>
+	<body>
 
-	<datalist id="defaultFreqs">
-		<option value="36045">
-		<option value="38029">
-		<option value="40244">
-	</datalist>
+		<datalist id="defaultFreqs">
+			<option value="36045">
+			<option value="38029">
+			<option value="40244">
+		</datalist>
 
-<!----------------------------------------------------------------------------------------------------------------------------->
-<!-- Top toolbar section -->
-<!----------------------------------------------------------------------------------------------------------------------------->
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<!-- Top toolbar section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
 
-	<div class="theme-container color-c4">
-		<form name="form-theme">
-			<input name="theme-col" type="submit" class="miniB" formaction="javascript: ui_colorsToggle('col')" value="😛" style="margin: 0 5px"/>
-			<input name="theme-bnw" type="submit" class="miniB" formaction="javascript: ui_colorsToggle('bnw')" value="☹" style="margin: 0 5px"/>
-			<input name="theme-inv" type="submit" class="miniB" formaction="javascript: ui_colorsToggle('inv')" value="🥺" style="margin: 0 5px"/>
-			<input name="theme-fn0" type="submit" class="miniB" formaction="javascript: ui_fontSize(0)" value="-" style="margin: 0 5px 0 40px"/>
-			A
-			<input name="theme-fn1" type="submit" class="miniB" formaction="javascript: ui_fontSize(1)" value="+" style="margin: 0 5px"/>
-		</form>
-	</div>		
-	<div class="theme-container color-b4">
-		<form name="form-theme">
-			<input id="bfCommand" type="submit" class="miniB" formaction="javascript: ui_formToggle('fCommand')" value="♔" style="margin: 0 3px 0 8px"/>
-			<input id="bfPronto" type="submit" class="miniB" formaction="javascript: ui_formToggle('fPronto')" value="♕" style="margin: 0 3px"/>
-			<input id="bfDecimal" type="submit" class="miniB" formaction="javascript: ui_formToggle('fDecimal')" value="♙" style="margin: 0 3px"/>
-			<input id="bfRawLirc" type="submit" class="miniB" formaction="javascript: ui_formToggle('fRawLirc')" value="♖" style="margin: 0 3px"/>
-			<input id="bfBroadHex" type="submit" class="miniB" formaction="javascript: ui_formToggle('fBroadHex')" value="♗" style="margin: 0 3px"/>
-			<input id="bfBroadB64" type="submit" class="miniB" formaction="javascript: ui_formToggle('fBroadB64')" value="♘" style="margin: 0 3px"/>
-			<input id="bfAnalyse" type="submit" class="miniB" formaction="javascript: ui_formToggle('fAnalyse')" value="⚙" style="margin: 0 3px"/>
-		</form>
-	</div>		
-	<div class="theme-container color-bg">
-		<h3><a href="https://github.com/pasthev/sensus" target="_blank">github.com/pasthev/sensus</a></h3>
-	</div>		
-	<h1 style="cursor: pointer" onclick="info('« non verbum e verbo sed sensum de sensu »')">Sensus IR & RF Code Converter</h1>
-	<br>
+		<div class="top-container themes">
+			<form>
+				<input name="theme-col" type="submit" class="miniB" formaction="javascript: ui_colorsToggle('col')" value="😛"/>
+				<input name="theme-bnw" type="submit" class="miniB" formaction="javascript: ui_colorsToggle('bnw')" value="☹"/>
+				<input name="theme-inv" type="submit" class="miniB" formaction="javascript: ui_colorsToggle('inv')" value="🥺"/>
+			</form>
+		</div>		
+		<div class="top-container top-container-fontsize">
+			<form name="fontSizeForm">
+				<input name="theme-fn0" type="submit" class="minib" formaction="javascript: ui_fontSize(0)" value="-"/>
+				A
+				<input name="theme-fn1" type="submit" class="minib" formaction="javascript: ui_fontSize(1)" value="+"/>
+			</form>
+		</div>
+		<div class="top-container panels">
+			<form>
+				<input id="bfCommand" type="submit" class="miniB" formaction="javascript: ui_formToggle('fCommand')" value="♔"/>
+				<input id="bfPronto" type="submit" class="miniB" formaction="javascript: ui_formToggle('fPronto')" value="♕"/>
+				<input id="bfDecimal" type="submit" class="miniB" formaction="javascript: ui_formToggle('fDecimal')" value="♙"/>
+				<input id="bfRawLirc" type="submit" class="miniB" formaction="javascript: ui_formToggle('fRawLirc')" value="♖"/>
+				<input id="bfCanvas" type="submit" class="miniB" formaction="javascript: ui_formToggle('fCanvas')" value="📊"/>
+				<input id="bfTuya" type="submit" class="miniB" formaction="javascript: ui_formToggle('fTuya')" value="🇹"/>
+				<input id="bfBroadHex" type="submit" class="miniB" formaction="javascript: ui_formToggle('fBroadHex')" value="♗"/>
+				<input id="bfBroadB64" type="submit" class="miniB" formaction="javascript: ui_formToggle('fBroadB64')" value="♘"/>
+				<input id="bfAnalyse" type="submit" class="miniB" formaction="javascript: ui_formToggle('fAnalyse')" value="⚙"/>
+			</form>
+		</div>		
+		<div class="top-container help">
+			<h3><a href="https://pasthev.github.io/" target="_blank">pasthev</a></h3>
+			<span>-</span>
+			<h3><a href="https://github.com/pasthev/sensus" target="_blank">github</a></h3>
+		</div>		
+		<h1 onclick="info('« non verbum e verbo sed sensum de sensu »')">Sensus IR & RF Code Converter</h1>
+		<br>
 
-<!----------------------------------------------------------------------------------------------------------------------------->
-<!-- Commands section -->
-<!----------------------------------------------------------------------------------------------------------------------------->
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<!-- Commands section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
 
-	<div class="container command" id = "fCommand">
-		<button class="closebutton" onclick="formHide('fCommand')">ⓧ</button>
-		<form name="form0">
-		<div>
-			<div class="col-25">
-				<label for="cHeaderField"><h2>♔ Commands</h2></label>
-				<input type="number" min="63" max="4145146" id="cFreqField" style="width: 100px" placeholder="00000" list="defaultFreqs"></input>
-				<label for="cFreqField">Hz</label>
-			</div>
-			<div class="col-75">
-				<label for="cShortField">Short (hex):</label>
-				<input type="transparent" id="cShortField" style="width: 230px; "placeholder="A51A"></input>
-				<input name="bCommToConv" type="submit" class="small" style="width: 40px;" formaction="javascript: ui_shortToCommand()" value="⮞"/>
-				&nbsp
-				<input name="bConvToComm" type="submit" class="small" style="width: 40px;" formaction="javascript: ui_commandToShort()" value="⮜"/>
-				<label for="cCommandField" >&nbsp Command (hex):</label>
-				<input type="transparent" id="cCommandField" style="width: 354px; "placeholder="A55A58A7"></input>
-				</br>
-				<label for="cHeaderField">Header:</label>
-				<input type="transparent" id="cHeaderField" style="width: 100px; "placeholder="8548  4125"></input>
-				<label for="">&nbsp One:</label>
-				<input type="transparent" id="cOneField" style="width: 100px; "placeholder="522  1615"></input>
-				<label for="cZeroField">&nbsp Zero:</label>
-				<input type="transparent" id="cZeroField" style="width: 100px; "placeholder="522   547"></input>
-				<label for="cPtrailField">&nbsp Ptrail:</label>
-				<input type="transparent" id="cPtrailField" style="width: 70px; "placeholder="522"></input>
-				<label for="cGapField">&nbsp Gap:</label>
-				<input type="transparent" id="cGapField" style="width: 70px; "placeholder="25817"></input>
-				<label for="cPreField">&nbsp Pre Data:</label>
-				<input type="transparent" id="cPreField" style="width: 70px; "placeholder="0xA55A"></input>
-			</div>
+		<div class="container command-panel-color" id = "fCommand">
+			<button class="closebutton" onclick="formHide('fCommand')">ⓧ</button>
+			<form>
+				<div class="row">
+					<div class="col-25">
+						<label for="cHeaderField"><h2>♔ Commands</h2></label>
+						<fieldset class="fieldset2 raw-subpanel-color">
+							<div>
+								<label for="cFreqField">Hz:</label>
+								<input type="number" class="input-medium number freq-input" min="63" max="4145146" id="cFreqField" placeholder="00000" list="defaultFreqs">
+							</div>
+						</fieldset>
+					</div>
 
-	
-	<!-- buttons section -->
+					<div class="col-75">
+						<div class="line-row">
+							<div>
+								<label for="cShortField">Short (hex):</label>
+								<input type="text" class="transparent input-xlarge" id="cShortField" placeholder="A51A">
+							</div>
+							<div>
+								<input class="small button-mini" name="bCommToConv" type="submit" formaction="javascript: ui_shortToCommand()" value="⮞"/>
+								&nbsp
+								<input class="small button-mini" name="bConvToComm" type="submit" formaction="javascript: ui_commandToShort()" value="⮜"/>
+							</div>
+							<div>
+								<label for="cCommandField" >Command (hex):</label>
+								<input type="text" class="transparent input-xxlarge" id="cCommandField" placeholder="A55A58A7">
+							</div>
+						</div>
 
-		  <div class="row">
-			<div class="col-25">
-			</div>
-			<div class="col-75">
-				<input type="submit" formaction="javascript: ui_convertCodes()" style="width: 200px" value="✔ Convert"/>
-				<input type="submit" formaction="javascript: ui_acme('Commands')" value="🎲"/>
-				<input type="submit" formaction="javascript: ui_clear('Commands')" value="✖ Clear"/>
-				<input type="submit" formaction="javascript: ui_copyLirc()" value="✂ Copy"/>
-				<input type="submit" formaction="javascript: ui_freq(36)" value="✎ 36 KHz"/>
-				<input type="submit" formaction="javascript: ui_freq(38)" value="✎ 38 KHz"/>
-				<input type="submit" formaction="javascript: ui_freq(40)" value="✎ 40 KHz"/>
-			</div>
-			</div>
+						<div class="line-row">
+							<div>
+								<label for="cHeaderField">Header:</label>
+								<input type="text" class="transparent input-medium" id="cHeaderField" placeholder="8548  4125">
+							</div>
+							<div>
+								<label for="cOneField">One:</label>
+								<input type="text" class="transparent input-medium" id="cOneField" placeholder="522  1615">
+							</div>
+							<div>
+								<label for="cZeroField">Zero:</label>
+								<input type="text" class="transparent input-medium" id="cZeroField" placeholder="522   547">
+							</div>
+							<div>
+								<label for="cPtrailField">Ptrail:</label>
+								<input type="text" class="transparent input-small" id="cPtrailField" placeholder="522">
+							</div>
+							<div>
+								<label for="cGapField">Gap:</label>
+								<input type="text" class="transparent input-small" id="cGapField" placeholder="25817">
+							</div>
+							<div>
+								<label for="cPreField">Pre Data:</label>
+								<input type="text" class="transparent input-small" id="cPreField" placeholder="0xA55A">
+							</div>
+						</div>
+						<div class="line-row">
+							<div></div>	<!-- Provisionning & Needed for distribution justify-content: space-between-->
+							<div>
+								<input class="button-large" type="submit" formaction="javascript: ui_convertCodes()" value="✔ Convert"/>
+								<input type="submit" formaction="javascript: ui_acme('Commands')" value="🎲"/>
+								<input type="submit" formaction="javascript: ui_clear('Commands')" value="✖ Clear"/>
+								<input type="submit" formaction="javascript: ui_copyLirc()" value="✂ Copy"/>
+								<input type="submit" formaction="javascript: ui_freq(36)" value="✎ 36 KHz"/>
+								<input type="submit" formaction="javascript: ui_freq(38)" value="✎ 38 KHz"/>
+								<input type="submit" formaction="javascript: ui_freq(40)" value="✎ 40 KHz"/>
+								<input type="submit" formaction="javascript:ui_presetValues()" value="⏩ Presets"/>
 
-			</div>
-
-		</form>
-	</div>
-
-<!----------------------------------------------------------------------------------------------------------------------------->
-<!-- Pronto data field section -->
-<!----------------------------------------------------------------------------------------------------------------------------->
-
-	<div class="container pronto" id = "fPronto">
-		<button class="closebutton" onclick="formHide('fPronto')">ⓧ</button>
-		<form name="form1">
-			<div class="row">
-				<div class="col-25">
-					<label for="prontoField"><h2>♕ Pronto data</h2></label>
-					<fieldset class="fieldset2 color-b4">
-						<input type="number" min="63" max="4145146" id="freqFieldPronto" style="width: 100px" placeholder="00000" list="defaultFreqs"></input>
-						<span">Hz</span>
-						<input name="wrtePrFreq" type="submit" class="small" formaction="javascript: ui_freqSet('Pronto')" value="set ⮑"/>
-						<input name="readPrFreq" type="submit" class="small" formaction="javascript: ui_freqRead('Pronto')" value="⮐ read"/>
-					</fieldset>
+							</div>
+						</div>
+					</div>
 				</div>
-				<div class="col-75">
-					<textarea  type="inputText" id="prontoField" placeholder="Your pronto data, e.g.: 0000 006D 000B..."></textarea>
-	
-					<!-- buttons section -->
+			</form>
+		</div>
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<!-- Pronto data field section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
 
-					<input type="submit" formaction="javascript: ui_convertPronto()" style="width: 200px" value="✔ Convert"/>
-					<input type="submit" formaction="javascript: ui_acme('Pronto')" value="🎲"/>
-					<input type="submit" formaction="javascript: ui_clear('prontoField')" value="✖ Clear"/>
-					<input type="submit" formaction="javascript: ui_paste('prontoField')" value="📋 Paste"/>
-					<input type="submit" formaction="javascript: ui_copy('prontoField')" value="✂ Copy"/>
+		<div class="container pronto-panel-color" id = "fPronto">
+			<button class="closebutton" onclick="formHide('fPronto')">ⓧ</button>
+			<form>
+				<div class="row">
+
+					<div class="col-25">
+						<label for="prontoField"><h2>♕ Pronto data</h2></label>
+						<fieldset class="fieldset2 pronto-subpanel-color">
+							<div>
+								<label for="freqFieldPronto">Hz:</label>
+								<input type="number" class="input-medium number freq-input" min="63" max="4145146" id="freqFieldPronto" placeholder="00000" list="defaultFreqs">
+							</div>
+							<div class="button-group">
+								<input name="wrtePrFreq" type="submit" class="small button-medium" formaction="javascript: ui_freqSet('Pronto')" value="set ⮑"/>
+								<input name="readPrFreq" type="submit" class="small button-medium" formaction="javascript: ui_freqRead('Pronto')" value="⮐ read"/>
+							</div>
+						</fieldset>
+					</div>
+					<div class="col-75">
+						<textarea id="prontoField" placeholder="Your pronto data, e.g.: 0000 006D 000B..."></textarea>
+		
+						<!-- buttons section -->
+						<div class="line-row">
+							<div></div>
+							<div>
+								<input class="button-large" type="submit" formaction="javascript: ui_convertPronto()" value="✔ Convert"/>
+								<input type="submit" formaction="javascript: ui_acme('Pronto')" value="🎲"/>
+								<input type="submit" formaction="javascript: ui_clear('prontoField')" value="✖ Clear"/>
+								<input type="submit" formaction="javascript: ui_paste('prontoField')" value="📋 Paste"/>
+								<input type="submit" formaction="javascript: ui_copy('prontoField')" value="✂ Copy"/>
+							</div>
+						</div>
+					</div>
+
 				</div>
-			</div>
-		</form>
-	</div>
+			</form>
+		</div>
 
-<!----------------------------------------------------------------------------------------------------------------------------->
-<!-- Decimal field section -->
-<!----------------------------------------------------------------------------------------------------------------------------->
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<!-- Decimal field section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
 
-	<div class="container decimal" id = "fDecimal">
-		<button class="closebutton" onclick="formHide('fDecimal')">ⓧ</button>
-		<form name="form1">
-			<div class="row">
-				<div class="col-25">
-					<label for="decimalField"><h2>♙ Decimal</h2></label>
-					<fieldset class="fieldset2 color-c4">
-						<input type="number" min="63" max="4145146" id="freqFieldDecimal" style="width: 100px" placeholder="00000" list="defaultFreqs"></input>
-						<span>Hz</span>
-						<input name="wrtePrFreq" type="submit" class="small" formaction="javascript: ui_freqSet('Decimal')" value="set ⮑"/>
-						<input name="readPrFreq" type="submit" class="small" formaction="javascript: ui_freqRead('Decimal')" value="⮐ read"/>
-					</fieldset>
+		<div class="container decimal-panel-color" id = "fDecimal">
+			<button class="closebutton" onclick="formHide('fDecimal')">ⓧ</button>
+			<form>
+				<div class="row">
+					<div class="col-25">
+						<label for="decimalField"><h2>♙ Decimal</h2></label>
+						<fieldset class="fieldset2 decimal-subpanel-color">
+							<div>
+								<label for="freqFieldDecimal">Hz:</label>
+								<input type="number" class="input-medium number freq-input" min="63" max="4145146" id="freqFieldDecimal" placeholder="00000" list="defaultFreqs">
+							</div>
+							<div class="button-group">
+								<input class="small button-medium"  name="wrtePrFreq" type="submit" formaction="javascript: ui_freqSet('Decimal')" value="set ⮑"/>
+								<input class="small button-medium" name="readPrFreq" type="submit" formaction="javascript: ui_freqRead('Decimal')" value="⮐ read"/>
+							</div>
+						</fieldset>
+					</div>
+					<div class="col-75">
+						<textarea id="decimalField" placeholder="Decimal values"></textarea>
+		
+						<!-- buttons section -->
+						<div class="line-row">
+							<div></div>
+							<div>
+								<input class="button-large" type="submit" formaction="javascript: ui_convertDecimal()" value="✔ Convert"/>
+								<input type="submit" formaction="javascript: ui_acme('Decimal')" value="🎲"/>
+								<input type="submit" formaction="javascript: ui_clear('decimalField')" value="✖ Clear"/>
+								<input type="submit" formaction="javascript: ui_paste('decimalField')" value="📋 Paste"/>
+								<input type="submit" formaction="javascript: ui_copy('decimalField')" value="✂ Copy"/>
+							</div>
+						</div>
+
+					</div>
 				</div>
-				<div class="col-75">
-					<textarea  type="inputText"  id="decimalField" placeholder="Decimal values"></textarea>
-	
-					<!-- buttons section -->
+			</form>
+		</div>
+		
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<!-- Raw field section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
 
-					<input type="submit" formaction="javascript: ui_convertDecimal()" style="width: 200px" value="✔ Convert"/>
-					<input type="submit" formaction="javascript: ui_acme('Decimal')" value="🎲"/>
-					<input type="submit" formaction="javascript: ui_clear('decimalField')" value="✖ Clear"/>
-					<input type="submit" formaction="javascript: ui_paste('decimalField')" value="📋 Paste"/>
-					<input type="submit" formaction="javascript: ui_copy('decimalField')" value="✂ Copy"/>
+		<div class="container raw-panel-color" id = "fRawLirc">
+			<button class="closebutton" onclick="formHide('fRawLirc')">ⓧ</button>
+			<form>
+				<div class="row">
+					<div class="col-25">
+						<label for="rawField"><h2>♖ Raw</h2></label>
+						<fieldset class="fieldset2 raw-subpanel-color">
+							<div>
+								<label for="freqFieldRaw">Hz:</label>
+								<input type="number" class="input-medium number freq-input" min="63" max="4145146" id="freqFieldRaw" placeholder="00000" list="defaultFreqs">
+							</div>
+							<div class="button-group">
+								<input name="wrtePrFreq" type="submit" class="small button-medium" formaction="javascript: ui_freqSet('Raw')" value="set ⮑"/>
+								<input name="readPrFreq" type="submit" class="small button-medium" formaction="javascript: ui_freqRead('Raw')" value="⮐ read"/>
+							</div>
+						</fieldset>
+					</div>
+					<div class="col-75">
+						<textarea id='rawField' placeholder="Raw decimal values"></textarea>
+
+						<!-- buttons section -->
+						<div class="line-row">
+							<div></div>
+							<div>
+								<input class="button-large" type="submit" formaction="javascript: ui_convertRaw()" value="✔ Convert"/>
+								<input type="submit" formaction="javascript: ui_acme('Raw')" value="🎲"/>
+								<input type="submit" formaction="javascript: ui_clear('rawField')" value="✖ Clear"/>
+								<input type="submit" formaction="javascript: ui_paste('rawField')" value="📋 Paste"/>
+								<input type="submit" formaction="javascript: ui_copy('rawField')" value="✂ Copy"/>
+								<input type="submit" formaction="javascript: ui_draw()" value="🖉 Draw"/>
+							</div>
+						</div>
+
+					</div>
 				</div>
-			</div>
-		</form>
-	</div>
-	
-<!----------------------------------------------------------------------------------------------------------------------------->
-<!-- Raw field section -->
-<!----------------------------------------------------------------------------------------------------------------------------->
+			</form>
+		</div>	  
 
-	<div class="container" id = "fRawLirc">
-		<button class="closebutton" onclick="formHide('fRawLirc')">ⓧ</button>
-		<form name="form1">
-			<div class="row">
-				<div class="col-25">
-					<label for="rawField"><h2>♖ Raw</h2></label>
-					<fieldset class="fieldset2 color-a4">
-						<input type="number" min="63" max="4145146" id="freqFieldRaw" style="width: 100px" placeholder="00000" list="defaultFreqs"></input>
-						<span">Hz</span>
-						<input name="wrtePrFreq" type="submit" class="small" formaction="javascript: ui_freqSet('Raw')" value="set ⮑"/>
-						<input name="readPrFreq" type="submit" class="small" formaction="javascript: ui_freqRead('Raw')" value="⮐ read"/>
-					</fieldset>
-				</div>
-				<div class="col-75">
-					<textarea  type="inputText" id='rawField' placeholder="Raw decimal values"></textarea>
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<!-- Canvas field section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<div class="container canvas-panel-color" style="height: 60px;" id="fCanvas">
+			<button class="closebutton" onclick="formHide('fCanvas')">ⓧ</button>
+			<canvas id="signalCanvas"></canvas>
+	</div>	
 
-					<!-- buttons section -->
 
-					<input type="submit" formaction="javascript: ui_convertRaw()" style="width: 200px" value="✔ Convert"/>
-					<input type="submit" formaction="javascript: ui_acme('Raw')" value="🎲"/>
-					<input type="submit" formaction="javascript: ui_clear('rawField')" value="✖ Clear"/>
-					<input type="submit" formaction="javascript: ui_paste('rawField')" value="📋 Paste"/>
-					<input type="submit" formaction="javascript: ui_copy('rawField')" value="✂ Copy"/>
-				</div>
-			  </div>
-		</form>
-	</div>	  
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<!-- Tuya field section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
 
-<!----------------------------------------------------------------------------------------------------------------------------->
-<!-- Broadlink Hex field section -->
-<!----------------------------------------------------------------------------------------------------------------------------->
-
-	<div class="container broadlinkHex" id = "fBroadHex">
-		<button class="closebutton" onclick="formHide('fBroadHex')">ⓧ</button>
-		<form name="form1">
-			<div class="row">
-				<div class="col-25">
-					<label for="broadlinkField"><h2>♗ Broadlink Hex</h2></label>
-					<fieldset class="fieldset2  color-b4">
-						<span">Repeats:</span>
-						<input type="number" min="0" max="255" id="hexRepeats" style="width: 62px" placeholder="255"></input>
-						<input name="hexRepdef" type="submit" class="small" formaction="javascript: ui_hexSetRepeats()" value="set ⮑"/>
-						<input name="hexRepRefr" type="submit" class="small" formaction="javascript: ui_hexReadRepeats()" value="⮐ read"/>
-					</fieldset>
-				</div>
-				<div class="col-75">
-					<textarea  type="inputText" id="broadlinkField" placeholder="(For Jeedom & similar)"></textarea>
-
-					<!-- buttons section -->
-
-					<input type="submit" formaction="javascript: ui_convertBroadlink()" style="width: 200px" value="✔ Convert"/>
-					<input type="submit" formaction="javascript: ui_acme('Broadlink')" value="🎲"/>
-					<input type="submit" formaction="javascript: ui_clear('broadlinkField')" value="✖ Clear"/>
-					<input type="submit" formaction="javascript: ui_paste('broadlinkField')" value="📋 Paste"/>
-					<input type="submit" formaction="javascript: ui_copy('broadlinkField')" value="✂ Copy"/>
-					<input type="submit" formaction="javascript: ui_copyPrefixed('broadlinkField')" value="✂ Jeedom"/>
-
-					<!-- Broadlink frequency section -->
-					
-					<fieldset class="fieldset1 color-b4">
-						<input name="chkSig" type="submit" class="miniB" formaction="javascript: ui_freqHexCheck()" value="?"/>
-						<input type="radio" id="rbIR0" name="sigType" value="rbIR" checked><label for="rbIR" style="mini">IR</label>
-						<input type="radio" id="rbRF4" name="sigType" value="rbRF4"><label for="rbRF4" style="mini">RF 433</label>
-						<input type="radio" id="rbRF3" name="sigType" value="rbRF3"><label for="rbRF3" style="mini">RF 315</label>
-						<input name="setSig" type="submit" class="miniB" formaction="javascript: ui_freqHexSet()" value="⮝"/>
-					</fieldset>
-				
-				</div>
-			</div>
-		</form>
-	</div>	  
-
-<!----------------------------------------------------------------------------------------------------------------------------->
-<!-- Broadlink B64 field section -->
-<!----------------------------------------------------------------------------------------------------------------------------->
-
-	<div class="container broadlinkB64" id = "fBroadB64">
-		<button class="closebutton" onclick="formHide('fBroadB64')">ⓧ</button>
-		<form name="form1">	
-			<div class="row">
-				<div class="col-25">
-					<label for="broadB64Field"><h2>♘ Broadlink B64</h2></label>
-					<fieldset class="fieldset2 color-c4">
-						<span>Repeats:</span>
-						<input type="number" min="0" max="255" id="b64Repeats" style="width: 62px" placeholder="255"></input>
-						<input name="b64Repdef" type="submit" class="small" formaction="javascript: ui_b64SetRepeats()" value="set ⮑"/>
-						<input name="b64RepRefr" type="submit" class="small" formaction="javascript: ui_b64ReadRepeats()" value="⮐ read"/>
-					</fieldset>
-				</div>
-				<div class="col-75">
-					<textarea  type="inputText" id="broadB64Field" placeholder="(For Home Assistant)"></textarea>
-
-					<!-- buttons section -->
-
-					<input type="submit" formaction="javascript: ui_convertB64()" style="width: 200px" value="✔ Convert"/>
-					<input type="submit" formaction="javascript: ui_acme('BroadB64')" value="🎲"/>
-					<input type="submit" formaction="javascript: ui_clear('broadB64Field')" value="✖ Clear"/>
-					<input type="submit" formaction="javascript: ui_paste('broadB64Field')" value="📋 Paste"/>
-					<input type="submit" formaction="javascript: ui_copy('broadB64Field')" value="✂ Copy"/>
-
-					<!-- Broadlink frequency section -->
+		<div class="container tuya-panel-color" id="fTuya">
+			<button class="closebutton" onclick="formHide('fTuya')">ⓧ</button>
+			<form>
+				<div class="row">
+					<div class="col-25">
+						<label for="tuyaField"><h2>🇹 Tuya data</h2></label>
+						<fieldset class="fieldset2 tuya-subpanel-color">
+							<div>
+								<label for="freqFieldTuya">Hz:</label>
+								<input type="number" class="input-medium number freq-input" min="63" max="4145146" id="freqFieldTuya" placeholder="00000" list="defaultFreqs">
+							</div>
+						</fieldset>
+					</div>
+					<div class="col-75">
+						<textarea id="tuyaField" placeholder="Your Tuya data here"></textarea>
 						
-					<fieldset class="fieldset1 color-c4">
-						<input name="chkSigb64" type="submit" class="miniB" formaction="javascript: ui_freqB64Check()" value="?"/>
-						<input name="sigTypb64" type="radio" id="rbIR0b64" value="rbIR" checked><label for="rbIRb64" style="mini">IR</label>
-						<input name="sigTypb64" type="radio" id="rbRF4b64" value="rbRF4"><label for="rbRF4b64" style="mini">RF 433</label>
-						<input name="sigTypb64" type="radio" id="rbRF3b64" value="rbRF3"><label for="rbRF3b64" style="mini">RF 315</label>
-						<input name="setSigb64" type="submit" class="miniB" formaction="javascript: ui_freqB64Set()" value="⮝"/>
-					</fieldset>
+						<div class="line-row">
+							<!-- Tuya frequency section -->
+							<fieldset class="fieldset1 tuya-subpanel-color">
+								<input name="tuyaFr" type="radio" id="tuyaFrOn" value="rbTuyaFrOn" checked><label for="tuyaFrOn" class="mini">Add Frequency</label>
+								<input name="tuyaFr" type="radio" id="tuyaFrOf" value="rbTuyaFrOf"><label for="tuyaFrOf" class="mini">No Frequency</label>
+							</fieldset>
+						<!-- buttons section -->
+							<div></div>
+							<div>
+								<input class="button-large" type="submit" formaction="javascript: ui_convertTuya()" value="✔ Convert" />
+								<input type="submit" formaction="javascript: ui_acme('Tuya')" value="🎲" />
+								<input type="submit" formaction="javascript: ui_clear('tuyaField')" value="✖ Clear" />
+								<input type="submit" formaction="javascript: ui_paste('tuyaField')" value="📋 Paste" />
+								<input type="submit" formaction="javascript: ui_copy('tuyaField')" value="✂ Copy" />
+							</div>
+						</div>
+
+					</div>
 				</div>
-			</div>	  
-		</form>
-	</div>	  
+			</form>
+		</div>
 
-<!----------------------------------------------------------------------------------------------------------------------------->
-<!-- Tests section -->
-<!----------------------------------------------------------------------------------------------------------------------------->
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<!-- Broadlink Hex field section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
 
-	<div class="container Command" id = "fAnalyse">
-		<button class="closebutton" onclick="formHide('fAnalyse')">ⓧ</button>
-		<form name="form0">
-			<div class="row">
-				<div class="col-25">
-					<label for="testField"><h2>⚙ Raw analysis</h2></label>
-					<fieldset class="fieldset2 color-a4">
-						<span">Head. len:</span>
-						<input type="number" min="0" max="99" id="headerLength" style="width: 62px" placeholder="2" value="2"></input>
-						<span>Trailer len:</span>
-						<input type="number" min="0" max="99" id="trailerLength" style="width: 58px" placeholder="1" value="1"></input>
-						<input name="headTraildefault" type="submit" class="small" formaction="javascript: ui_headTrailReset(2,1)" value="default"/>
-						<input name="headTrailReset" type="submit" class="small" formaction="javascript: ui_headTrailReset(0,0)" value="reset"/>
-					</fieldset>
+		<div class="container broadlinkHex-panel-color" id = "fBroadHex">
+			<button class="closebutton" onclick="formHide('fBroadHex')">ⓧ</button>
+			<form>
+				<div class="row">
+					<div class="col-25">
+						<label for="broadlinkField"><h2>♗ Broadlink Hex</h2></label>
+						<fieldset class="fieldset2 broadlinkHex-subpanel-color">
+							<div>
+								<label for="hexRepeats">Repeats:</label>
+								<input type="number" class="number repeat-input" min="0" max="255" id="hexRepeats" placeholder="255">
+							</div>
+							<div class="button-group">
+								<input name="hexRepdef" type="submit" class="small button-medium" formaction="javascript: ui_hexSetRepeats()" value="set ⮑"/>
+								<input name="hexRepRefr" type="submit" class="small button-medium" formaction="javascript: ui_hexReadRepeats()" value="⮐ read"/>
+							</div>
+						</fieldset>
+					</div>
+					<div class="col-75">
+						<textarea id="broadlinkField" placeholder="(For Jeedom & similar)"></textarea>
+
+						<div class="line-row">
+							<!-- Broadlink frequency section -->
+							<fieldset class="fieldset1 broadlinkHex-subpanel-color">
+								<input name="chkSig" type="submit" class="miniB notranslate" formaction="javascript: ui_freqHexCheck()" value="?"/>
+								<input type="radio" id="rbIR0" name="sigType" value="rbIR" checked><label for="rbIR" class="mini">IR</label>
+								<input type="radio" id="rbRF4" name="sigType" value="rbRF4"><label for="rbRF4" class="mini">RF 433</label>
+								<input type="radio" id="rbRF3" name="sigType" value="rbRF3"><label for="rbRF3" class="mini">RF 315</label>
+								<input name="setSig" type="submit" class="miniB notranslate" formaction="javascript: ui_freqHexSet()" value="⮝"/>
+							</fieldset>
+							<!-- buttons section -->
+							<div>
+								<input class="button-large" type="submit" formaction="javascript: ui_convertBroadlink()" value="✔ Convert"/>
+								<input type="submit" formaction="javascript: ui_acme('Broadlink')" value="🎲"/>
+								<input type="submit" formaction="javascript: ui_clear('broadlinkField')" value="✖ Clear"/>
+								<input type="submit" formaction="javascript: ui_paste('broadlinkField')" value="📋 Paste"/>
+								<input type="submit" formaction="javascript: ui_copy('broadlinkField')" value="✂ Copy"/>
+								<input type="submit" formaction="javascript: ui_copyPrefixed('broadlinkField')" value="✂ Jeedom"/>
+							</div>
+						</div>
+					
+					</div>
 				</div>
-				<div class="col-75">
-					<textarea  type="inputText" id="testField" placeholder="(Input a chain in Raw field and check Analysis results here)" style="height:120px; border: 1px solid;"></textarea>
+			</form>
+		</div>	  
 
-					<!-- buttons section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<!-- Broadlink B64 field section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
 
-					<input type="submit" formaction="javascript: ui_readRaw()" style="width: 200px" value="✔ Read Raw"/>
-					<input type="submit" formaction="javascript: ui_acme('Analysis')" value="🧪"/>
-					<input type="submit" formaction="javascript: ui_clear('testField')" value="✖ Clear"/>
-					<input type="submit" formaction="javascript: ui_copy('testField')" value="✂ Copy"/>
-					<input type="submit" formaction="javascript: ui_check()" value="➀ Check"/>
-					<input type="submit" formaction="javascript: ui_repeats()" value="♲ Repeats"/>
-					<input type="submit" formaction="javascript: ui_clearAll()" value="🗑 Clear all"/>
+		<div class="container broadlinkB64-panel-color" id = "fBroadB64">
+			<button class="closebutton" onclick="formHide('fBroadB64')">ⓧ</button>
+			<form>	
+				<div class="row">
+					<div class="col-25">
+						<label for="broadB64Field"><h2>♘ Broadlink B64</h2></label>
+						<fieldset class="fieldset2 broadlinkB64-subpanel-color">
+							<div>
+								<label for="b64Repeats">Repeats:</label>
+								<input type="number" class="number repeat-input" min="0" max="255" id="b64Repeats" placeholder="255">
+							</div>
+							<div class="button-group">
+								<input name="b64Repdef" type="submit" class="small button-medium" formaction="javascript: ui_b64SetRepeats()" value="set ⮑"/>
+								<input name="b64RepRefr" type="submit" class="small button-medium" formaction="javascript: ui_b64ReadRepeats()" value="⮐ read"/>
+							</div>
+				</fieldset>
+					</div>
+					<div class="col-75">
+						<textarea id="broadB64Field" placeholder="(For Home Assistant)"></textarea>
+
+
+						<div class="line-row">
+							<!-- Broadlink frequency section -->
+							<fieldset class="fieldset1 broadlinkB64-subpanel-color">
+								<input name="chkSigb64" type="submit" class="miniB notranslate" formaction="javascript: ui_freqB64Check()" value="?"/>
+								<input name="sigTypb64" type="radio" id="rbIR0b64" value="rbIR" checked><label for="rbIRb64" class="mini">IR</label>
+								<input name="sigTypb64" type="radio" id="rbRF4b64" value="rbRF4"><label for="rbRF4b64" class="mini">RF 433</label>
+								<input name="sigTypb64" type="radio" id="rbRF3b64" value="rbRF3"><label for="rbRF3b64" class="mini">RF 315</label>
+								<input name="setSigb64" type="submit" class="miniB notranslate" formaction="javascript: ui_freqB64Set()" value="⮝"/>
+							</fieldset>
+							<!-- buttons section -->
+							<div>
+								<input class="button-large" type="submit" formaction="javascript: ui_convertB64()" value="✔ Convert"/>
+								<input type="submit" formaction="javascript: ui_acme('BroadB64')" value="🎲"/>
+								<input type="submit" formaction="javascript: ui_clear('broadB64Field')" value="✖ Clear"/>
+								<input type="submit" formaction="javascript: ui_paste('broadB64Field')" value="📋 Paste"/>
+								<input type="submit" formaction="javascript: ui_copy('broadB64Field')" value="✂ Copy"/>
+							</div>
+						</div>
+
+
+					</div>
+				</div>	  
+			</form>
+		</div>	  
+
+	<!----------------------------------------------------------------------------------------------------------------------------->
+	<!-- Tests section -->
+	<!----------------------------------------------------------------------------------------------------------------------------->
+
+		<div class="container Command-panel-color" id = "fAnalyse">
+			<button class="closebutton" onclick="formHide('fAnalyse')">ⓧ</button>
+			<form>
+				<div class="row">
+					<div class="col-25">
+						<label for="testField"><h2>⚙ Raw analysis</h2></label>
+						<fieldset class="fieldset2 command-subpanel-color">
+							<div>
+								<label for="headerLength">Head. len:</label>
+								<input type="number" class="number" min="0" max="99" id="headerLength" placeholder="2" value="2">
+							</div>
+							<div>
+								<label for="trailerLength">Trail len:</label>
+								<input type="number" class="number" min="0" max="99" id="trailerLength" placeholder="1" value="1">
+							</div>
+							<div class="button-group">
+								<input name="headTraildefault" type="submit" class="small button-medium" formaction="javascript: ui_headTrailReset(2,1)" value="default"/>
+								<input name="headTrailReset" type="submit" class="small button-medium" formaction="javascript: ui_headTrailReset(0,0)" value="reset"/>
+							</div>
+						</fieldset>
+					</div>
+					<div class="col-75">
+						<textarea id="testField" placeholder="(Input a chain in Raw field and check Analysis results here)" style="height:120px;"></textarea>
+
+						<!-- buttons section -->
+						<div class="line-row">
+							<div></div>
+							<div>
+								<input class="button-large" type="submit" formaction="javascript: ui_readRaw()" value="✔ Read Raw"/>
+								<input type="submit" formaction="javascript: ui_acme('Analysis')" value="🧪"/>
+								<input type="submit" formaction="javascript: ui_clear('testField')" value="✖ Clear"/>
+								<input type="submit" formaction="javascript: ui_copy('testField')" value="✂ Copy"/>
+								<input type="submit" formaction="javascript: ui_check()" value="➀ Check"/>
+								<input type="submit" formaction="javascript: ui_repeats()" value="♲ Repeats"/>
+								<input type="submit" formaction="javascript: ui_clearAll()" value="🗑 Clear all"/>
+							</div>
+						</div>
+
+					</div>
 				</div>
-			</div>
-		</form>
-	</div>
-	</div>
+			</form>
+		</div>
 	<body>
 </html>
