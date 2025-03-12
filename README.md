@@ -98,3 +98,5 @@ Bugs or Feature request? Us the [Issues](https://github.com/pasthev/sensus/issue
 <div style="text-align: center;">
     <img src="screenshots/sensus_screenshot_02.jpg" width="600">
 </div>
+
+[Guide d'utilisation en français](README_FR.md)

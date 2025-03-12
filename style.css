@@ -195,7 +195,7 @@ input.small:hover {
 }
 
 /* Mini buttons used at the top and in Broadlink signal types*/
-input.minib {
+input.miniB {
   font-size: 0.6em;
   padding: 0px 0px 0px 0px;
   width: 20px;
@@ -205,6 +205,7 @@ input.minib {
   float: none;
   transform: translateY(-2px);
 }
+
 /* New subclass for minib buttons that should NOT be moved up */
 input.notranslate {
   transform: none; /* Reset the transform */
