@@ -69,9 +69,10 @@ Binary: *00010101000101000100000001000001010100010000000000000100010101010*
 
 Explication :
 
-La ligne "*Binary*" affiche les valeurs Raw converties bêtement en 0 et en 1
-La ligne "*with shift value*" lit ces bits (les "**bibits**") deux par deux, ici encodés 00=0 & 01=1, ce qui n'est pas toujours le cas.
-La ligne  "*hex*" affiche ces valeurs en hexadécimal: 01110110 en binaire s'écrit 76 en héxadécimal, ou 110 en décimal. 
+* La ligne "*Binary*" affiche les valeurs Raw converties bêtement en 0 et en 1
+* La ligne "*with shift value*" lit ces bits (les "**bibits**") deux par deux, ici encodés 00=0 & 01=1, ce qui n'est pas toujours le cas.
+* La ligne  "*hex*" affiche ces valeurs en hexadécimal: 01110110 en binaire s'écrit 76 en héxadécimal, ou 110 en décimal. 
+
 ```
   550,  550,  550, 1722,  550, 1722,  550, 1722,  550,  550,  550, 1722,  550, 1722,  550,  550,  550, 1722,  550,  602...
    0     0     0     1     0     1     0     1     0     0     0     1     0     1     0     0     0     1     0     0...
