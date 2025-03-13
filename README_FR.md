@@ -27,7 +27,7 @@ Copiez-le, puis collez ces valeurs dans le champ *Raw* de *Sensus*.
 
 La commande est affichée, surlignée ici en jaune : `7689 d02f`.
 
-* Manifestement, celle-ci est encodée en suivant le protocole NEC, puisque le programme a pu en déduire le "short" : `6e0b`. C'est ici du NEC Standard, avec l'adresse sur un seul octet, il faut y lire : "*Envoie au périphérique n°6e la commande 0b*", soit, en décimal : "*Envoie au périphérique n°110 la commande 11*".
+* Manifestement, celle-ci est encodée en suivant le protocole NEC, puisque le programme a pu en déduire le "*short*" : `6e0b`. C'est ici du NEC Standard, avec l'adresse sur un seul octet, il faut y lire : "*Envoie au périphérique n°6e la commande 0b*", soit, en décimal : "*Envoie au périphérique n°110 la commande 11*".
 
 * L'entête ("**Header**", ici en rouge), a été identifié : `9041, 4524`. Un haut long, suivi d'un bas de la moitié de sa longueur - standard aussi.
 
@@ -36,7 +36,7 @@ La commande est affichée, surlignée ici en jaune : `7689 d02f`.
 * Tant qu'on garde un bouton de télécommande appuyé, celle-ci renvoie le signal, mais en marquant chaque fois une pause entre deux, le "**Repeat Signal**", qui est en général le même que le signal de fin de séquence, le "**Gap**". Celui-ci vaut souvent la somme de la totalité du signal. J'ai ici indiqué le premier *Repeat* en vert, le second en bleu ciel : `40362`, et `40332`. La valeur devrait plutôt être autour des 54004 ici, mais peu importe : l'essentiel est d'envoyer un long blanc, et les durées sont exprimées en μs - on parle donc ici d'une pause de 0,4 ou 0,5 secondes.
   * Sensus n'a pas enregistré cette valeur en tant que "**Gap**" dans le champ du haut : il se méfie, car le *Gap* est attendu en fin de signal, mais peut-être devrais-je le rendre moins méfiant, car on utilisera plus tard cette valeur de repeat en tant que *Gap*.
 
-* Le "Ptrail" est un court "demi Zéro" envoyé après la commande, juste avant le *Repeat* ou le *Gap*. Il sert à indiquer la longueur d'unité, et à rendre paire la suite de valeur, pour s'assurer que le Gap soit interprété comme un silence. Le Ptrail n'a pas été ici repéré par Sensus, je ne sais pas pourquoi - peut-être à cause de la queue inachevée - , mais il le sera en temps utiles.
+* Le "**Ptrail**" est un court "*demi Zéro*" envoyé après la commande, juste avant le *Repeat* ou le *Gap*. Il sert à indiquer la longueur d'unité, et à rendre paire la suite de valeur, pour s'assurer que le Gap soit interprété comme un silence. Le Ptrail n'a pas été ici repéré par Sensus, je ne sais pas pourquoi - peut-être à cause de la queue inachevée - , mais il le sera en temps utiles.
 
 
 ## Supprimer les répétitions
@@ -51,14 +51,14 @@ La méthode est simple. On commence par supprimer du Raw toutes les valeurs apr�
 9041, 4524, 550, 550, 550, 1722, 550, 1722, 550, 1722, 550, 550, 550, 1722, 550, 1722, 550, 550, 550, 1722, 550, 602, 550, 550, 550, 550, 550, 1722, 550, 550, 550, 550, 550, 1722, 550, 1722, 550, 1722, 550, 550, 550, 1722, 550, 550, 550, 550, 550, 550, 550, 550, 550, 550, 550, 550, 550, 1722, 550, 550, 550, 1722, 550, 1722, 550, 1722, 550, 1722, 550, 40362
 ```
 
-Faites-le, puis cliquez de nouveau dans le panneau "Raw Analysis" sur "Read Raw". Dans le panneau "Raw", cliquez sur "Draw". Vous voilà avec un signal propre, une commande et un short uniques, qui ont bien les mêmes valeurs que celles initialement répétées :
+Faites-le, puis cliquez de nouveau dans le panneau "**Raw Analysis**" sur "**Read Raw**". Dans le panneau "**Raw**", cliquez sur "**Draw**". Vous voilà avec un signal propre, une commande et un short uniques, qui ont bien les mêmes valeurs que celles initialement répétées :
 
 ![image](screenshots/sensusManual02.jpg)
 
 * Notez que cette fois, le **Ptrail** et le **Gap** sont identifiés : `550`et `40362`. 
 * Tel quel, le signal a toutes les chances de fonctionner, mais notez que dans certains standards imposant un équilibrage, `403622` devrait être remplacé par `54004`, soit la somme des valeurs du signal. Mais puisque c'est la valeur `40350`qui a été enregistrée, autant la conserver.
 
-Ajoutez ce chiffre à la main dans Raw, puis cliquez sur "Draw" : le signal s'affiche, avec son Gap, prêt à être converti dans le format désiré.
+Ajoutez ce chiffre à la main dans Raw, puis cliquez sur "**Draw**" : le signal s'affiche, avec son Gap, prêt à être converti dans le format désiré.
 
 ## Interlude : histoires de bits
 Avant de voir l'autre méthode de nettoyage, un coup d'oeil à Raw Analysis. En défilant tout en bas de l'analyse, on peut voir ces valeurs :
@@ -69,9 +69,9 @@ Binary: *00010101000101000100000001000001010100010000000000000100010101010*
 
 Explication :
 
-La ligne "Binary" affiche les valeurs Raw converties bêtement en 0 et en 1
-La ligne "with shift value" lit ces bits (les "bibits") deux par deux, ici encodés 00=0 & 01=1, ce qui n'est pas toujours le cas.
-La ligne  "hex" affiche ces valeurs en hexadécimal: 01110110 en binaire s'écrit 76 en héxadécimal, ou 110 en décimal. 
+La ligne "*Binary*" affiche les valeurs Raw converties bêtement en 0 et en 1
+La ligne "*with shift value*" lit ces bits (les "**bibits**") deux par deux, ici encodés 00=0 & 01=1, ce qui n'est pas toujours le cas.
+La ligne  "*hex*" affiche ces valeurs en hexadécimal: 01110110 en binaire s'écrit 76 en héxadécimal, ou 110 en décimal. 
 ```
   550,  550,  550, 1722,  550, 1722,  550, 1722,  550,  550,  550, 1722,  550, 1722,  550,  550,  550, 1722,  550,  602...
    0     0     0     1     0     1     0     1     0     0     0     1     0     1     0     0     0     1     0     0...
@@ -112,9 +112,9 @@ soit `6e - 0b`
 
 Cette commande est dans le seul format généralement communiqué par les fabricants - lorsqu'ils les communiquent. C'est aussi ce format qu'utilise **LIRC**, et l'on trouve de nombreuses bases de données en ligne, comme la [LIRC Remotes Databases](https://lirc-remotes.sourceforge.net/remotes-table.html).
 
-Ainsi, si l'on en parcoure la [table](https://lirc-remotes.sourceforge.net/remotes-table.html) et que l'on clique par exemple [	samsung/0070-63.lircd.conf](https://sourceforge.net/p/lirc-remotes/code/ci/master/tree/remotes/samsung/0070-63.lircd.conf), on redécouvre toutes les valeurs qui ont été abordées ici.
+Ainsi, si l'on en parcoure cette [table LIRC](https://lirc-remotes.sourceforge.net/remotes-table.html) et que l'on clique par exemple [	samsung/0070-63.lircd.conf](https://sourceforge.net/p/lirc-remotes/code/ci/master/tree/remotes/samsung/0070-63.lircd.conf), on redécouvre toutes les valeurs qui ont été abordées ici.
 
-Les "Shorts" sont dans la catégorie begin codes :
+Les "**Shorts**" sont dans la catégorie begin codes :
 ```
 begin codes :
           KEY_POWER                0x00000000000040BF        #  Was: Power
@@ -124,7 +124,7 @@ begin codes :
           KEY_KPMINUS              0x00000000000014EB        #  Was: -
 ```
 `0x` indique une notation hexadécimale, et tous les 00 à gauche sont aussi utiles que de dire "*j'ai froid, il fait 000000015° dans mon séjour !* : on les supprime, et l'on découvre ainsi que pour allumer cette TV Samsung, il faut lui envoyer le short code `40bf`.
-* Au besoin, Sensus permet de rapidement convertir un Short en commande, et vice-versa : ce n'est pas utile ici, mais entrez le short en haut à gauche, cliquez la flèche qui part vers la droite, vous obtiendrer le résultat de l'inversion et de la conversion LSB en haut à droite : `02fd fd02` pour `40bf`.
+* Au besoin, Sensus permet de rapidement convertir un *Short* en commande, et vice-versa : ce n'est pas utile ici, mais entrez le *Short* en haut à gauche, cliquez la flèche qui part vers la droite, vous obtiendrer le résultat de l'inversion et de la conversion LSB en haut à droite : `02fd fd02` pour `40bf`.
 
 La page LIRC contient les infos à entrer dans le panneau "Commandes" de Sensus :
 
@@ -140,7 +140,7 @@ La page LIRC contient les infos à entrer dans le panneau "Commandes" de Sensus 
 ```
 Là où tout cela devient vraiment intéressant pour la domotique, c'est qu'en cherchant, on peut trouver sur le Web les fameux codes secrets, les "**Discrete Codes**", qui contiennent des séquences que la TV par exemple peut reconnaître, alors qu'il n'y a pas de bouton équivalent sur la télécommande.
 
-Par exemple, pour ma TV:
+Par exemple, pour ma TV (oui, j'ai une vieille TV, je suis un peu technophobe):
 ```
 begin remote
 
@@ -164,7 +164,7 @@ begin remote
           TV1_PowerOn              0x9966                    #  Was: Power On
           TV1_VolumeUp             0xE01F                    #  Was: Vol+
 ```
-`40BF`, c'est le bouton qui fonctionne en bascule On/Off sur ma télécommande. Mais si je veux programmer Jeedom ou Home-Assistant pour une extinction à distance ou un allumage automatise via mon émetteur IR Tuya, Broadlink ou autre, j'emets `19E6`, je suis sûr de l'éteindre, et avec `9966`, je peux bien envoyer deux fois le code par mégarde, la TV restera allumée.
+`40BF`, c'est le bouton qui fonctionne en bascule On/Off sur ma télécommande. Mais si je veux programmer Jeedom ou Home-Assistant pour une extinction à distance ou un allumage automatisé via mon émetteur IR Tuya, Broadlink ou autre, j'emets `19E6`, je suis sûr de l'éteindre, et avec `9966`, je peux bien envoyer deux fois le code par mégarde, la TV restera allumée.
 
 Fort de tout cela, revenons-en à notre signal initial. Nous avons vu comment le "nettoyer", mais puisqu'on en a extrait tout ce que nous voulions savoir - l'équivalent des infos LIRC - nous pouvons le générer à partir de ces infos que nous avons récupérées dans le panneau *Commands* :
 ```
@@ -181,7 +181,8 @@ Fort de tout cela, revenons-en à notre signal initial. Nous avons vu comment le
 Il ne reste plus qu'à entrer ces valeurs dans le panneau *Commands* de *Sensus*, et à cliquer sur "**Convert**" dans le panneau de Commandes.
 
 ![image](screenshots/sensusManual03.jpg)
-Quelques points à savoir:
+
+### Quelques points à savoir:
 * Lorsque vous entrez un Raw dans Sensus et cliquez sur Convert, les valeurs du Raw sont ajustées pour une compatibilité maximale avec les autres protocoles. Ces changement de quelques microsecondes n'affecteront pas votre signal, qu'il soit IR ou RF.
 
 * Dès lors qu'une fréquence est saisie, elle est affichée encodée dans le Raw, sous forme d'un en-tête de quatre valeurs : les deux premières contiennent la fréquence, les suivantes le nombre de valeurs de commandes de la séquence. Celles-ci ne servent pas à grand chose dans un Raw, mais elles n'affectent pas le signal émis. Notez au passage que j'ai choisi par défaut d'exclure ces valeurs inutiles de l'affichage graphique lorsqu'on clique sur "Convert". Mais j'ai programmé le bouton "Draw" pour que lui l'affiche, si vous voulez voir le signal exact.
