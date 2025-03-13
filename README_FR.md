@@ -195,9 +195,7 @@ Quelques points à savoir:
 ![image](screenshots/sensusManual04.jpg)
 
 
+**[Pasthev 2025](https://pasthev.github.io/)**
 
-
-
-
-
-
+---
+_Feedback / Questions / Petit merci : Utilisez le lien [Discussions](https://github.com/pasthev/sensus/discussions) ci-dessus, ou contactez-moi via mon [formulaire de contact anonyme](https://docs.google.com/forms/d/e/1FAIpQLSckf2f04hYhTN3T6GvchbxhjhKcYHLMRDXnrRfqlM_eRW_NiA/viewform?usp=sf_link)_
