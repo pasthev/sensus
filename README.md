@@ -104,7 +104,7 @@ Bugs or Feature request? Us the [Issues](https://github.com/pasthev/sensus/issue
 
 
 
-## <a id="user_guide">User Guide
+## User Guide<a id="user_guide"></a>
 
 *Guide d'utilisation en français [ici](README_FR.md)*
 
