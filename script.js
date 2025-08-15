@@ -1677,8 +1677,9 @@ function convertDecimal(decimal) {                    // ** Main- Converts all f
 
 }
 function ui_convertRaw() {                            // Convert from Raw button
+    if (!normalizeRawSeparators()) {return;}
 	cleanOnClick();
-	let raw = getField('rawField');
+	let raw = getField('rawField').replace(/-/g, ''); // Removes dashes if any
 	let obj = stringType(raw);
     if (obj.type == 'decimal') {                     //	'binary' might also be accepted in theory, but decimal packet should include header, unlikely to be binary
 		convertRaw(raw);
@@ -1848,9 +1849,7 @@ function convertB64(b64) {                            // ** Main- Converts all f
 }
 function ui_convertToESPHome() {
     cleanOnClick();
-    if (!normalizeRawSeparators()) {
-        return;
-    }
+    if (!normalizeRawSeparators()) {return;}
 
     let rawString = getField('rawField');
     let values = rawString.split(',').map(Number);
