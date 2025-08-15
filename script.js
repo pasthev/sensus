@@ -345,6 +345,7 @@ function ui_clearAll() {
 	setFocus('rawField');
 }
 function ui_check() {                                       // 'Check' button in Raw Analysis panel : pulls figures out of figures
+    if (!normalizeRawSeparators()) {return} 		// normalize spaces to commas in rawField and checks if values
 	cleanOnClick();
 	let i, str = '', raw = getField('rawField');
 	let hex, dec;
@@ -467,6 +468,7 @@ function insertChars(str, char, pos) {                               // _Inserts
 }
 function ui_repeats() {                                              // Identifies longest duplicated sustrings and removes last occurrence of the dup 
 
+    if (!normalizeRawSeparators()) {return} 		// normalize spaces to commas in rawField and checks if values
 	cleanOnClick();
 	let raw = getField('rawField');
 	let str = repeatFind(raw);
@@ -540,7 +542,20 @@ function commonSubstr(str1, str2) {                                  //  _Return
 
 // Raw Analysis functions -------------------------------------------------------------------------------------------------->	
 
+
+function normalizeRawSeparators() {									// Helper function to normalize Raw field separators (space -> comma)
+    let rawField = getField('rawField');
+    if (!rawField.trim()) {return false;}
+    // Normalizes separators by splitting the string by any combination of spaces and/or commas,
+    // then rejoins them with a single comma and a space.
+    let values = rawField.split(/[\s,]+/);
+    let normalized = values.join(', ');
+    
+    setField('rawField', normalized);
+    return true;
+}
 function ui_readRaw() {
+    if (!normalizeRawSeparators()) {return} 		// normalize spaces to commas in rawField and checks if values
 	cleanOnClick();
 	readRaw();
 	setFocus('rawField');
@@ -1830,6 +1845,36 @@ function convertB64(b64) {                            // ** Main- Converts all f
 	let pronto = getProntoFromRaw(raw, freq);
 	setField('prontoField', pronto);
 
+}
+function ui_convertToESPHome() {
+    cleanOnClick();
+    if (!normalizeRawSeparators()) {
+        return;
+    }
+
+    let rawString = getField('rawField');
+    let values = rawString.split(',').map(Number);
+    let convertedValues = [];
+
+    // Toggles the conversion: convert back to positive values if any are negative
+    const isAlreadyESPHome = values.some(val => val < 0);
+    
+    if (isAlreadyESPHome) {
+        convertedValues = values.map(Math.abs);
+        setField('rawField', convertedValues.join(', '));
+        info('ESP Home conversion disabled.');
+    } else {
+        // Convert to ESP Home format: make every second value negative
+        for (let i = 0; i < values.length; i++) {
+            if (i % 2 !== 0) {
+                convertedValues.push(-Math.abs(values[i]));
+            } else {
+                convertedValues.push(values[i]);
+            }
+        }
+        setField('rawField', convertedValues.join(', '));
+        info('ESP Home conversion enabled.');
+    }
 }
 function getCommandFromShort(short) {                 // Converts short IR command to expanded one i.e. 'A559+A502' to 'a55a 9a65 + a55a 40bf'
 	let command = '';                                           //
