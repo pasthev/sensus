@@ -33,6 +33,7 @@ Bugs or Feature request? Us the [Issues](https://github.com/pasthev/sensus/issue
 * Broadlink hex (used in Jeedom)
 * Broadlink Base 64 (Used in Home Assistant)
 * Tuya Base 64
+* ESP Home
 
 ### Frequency change
 * Read or change frequency in Lirc / Pronto / Decimal / Raw frames
