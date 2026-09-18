@@ -140,7 +140,7 @@ function ui_copyLirc() {                   // Turns Commands into a Lirc txt, an
 }
 function ui_presetValues() {			   // Prefills Command fields with most common IR values
     const presetValues = [
-        "9000, 45000",  // Header
+        "9000, 4500",   // Header
         "562, 1688",    // One
         "562, 563",     // Zero
         "1688",         // Ptrail
